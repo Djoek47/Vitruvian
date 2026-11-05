@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import { T } from "./theme";
+import { FONT_STATE, snapType, T } from "./theme";
 
 /**
  * Immediate-mode world-space panel: a Canvas2D texture on a plane. Each redraw
@@ -99,8 +99,17 @@ export class CanvasPanel {
 
   text(s: string, x: number, y: number, o: { size?: number; weight?: number; color?: string; align?: CanvasTextAlign; font?: "ui" | "display"; italic?: boolean; spacing?: number; maxW?: number } = {}) {
     const c = this.ctx;
-    const size = o.size ?? 40;
-    c.font = `${o.italic ? "italic " : ""}${o.weight ?? 500} ${size}px ${o.font === "display" ? T.display : T.ui}`;
+    // every size lands on the Fibonacci type scale (uniform across screens)
+    const size = snapType(o.size ?? 40);
+    const display = o.font === "display";
+    // Planet Kosmos is natively slanted; synthesize italic only for the fallback face
+    const italic = o.italic && !(display && FONT_STATE.kosmos);
+    c.font = `${italic ? "italic " : ""}${o.weight ?? 500} ${size}px ${display ? T.display : T.ui}`;
+    // wide display faces never overflow the panel: default max width = space to the panel edge
+    if (o.maxW === undefined) {
+      const room = (o.align ?? "left") === "left" ? this.pxW - x - 40 : (o.align === "right" ? x - 40 : Math.min(x, this.pxW - x) * 2 - 80);
+      if (room > 0) o = { ...o, maxW: room };
+    }
     c.fillStyle = o.color ?? T.text;
     c.textAlign = o.align ?? "left";
     c.textBaseline = "alphabetic";
@@ -112,11 +121,12 @@ export class CanvasPanel {
   /** Word-wrapped paragraph; returns the y after the last line. */
   para(s: string, x: number, y: number, maxW: number, o: { size?: number; color?: string; lh?: number; weight?: number } = {}) {
     const c = this.ctx;
-    const size = o.size ?? 38;
+    const size = snapType(o.size ?? 38);
     c.font = `${o.weight ?? 500} ${size}px ${T.ui}`;
     c.fillStyle = o.color ?? T.text2;
     c.textAlign = "left";
-    const lh = o.lh ?? size * 1.38;
+    // line height: requested, but never tighter than size × 1.272 (√φ)
+    const lh = Math.max(o.lh ?? size * 1.382, size * 1.272);
     let lineS = "";
     for (const w of s.split(" ")) {
       const t = lineS ? lineS + " " + w : w;
@@ -130,8 +140,8 @@ export class CanvasPanel {
     return y + lh;
   }
 
-  label(s: string, x: number, y: number, color: string = T.text3) {
-    this.text(s.toUpperCase(), x, y, { size: 24, weight: 600, color, spacing: 4 });
+  label(s: string, x: number, y: number, color: string = T.text2) {
+    this.text(s.toUpperCase(), x, y, { size: 21, weight: 700, color, spacing: 5 });
   }
 
   button(id: string, r: Rect, label: string, onClick: () => void, o: { variant?: ButtonVariant; disabled?: boolean; glyph?: string; size?: number } = {}) {
@@ -170,7 +180,7 @@ export class CanvasPanel {
       c.stroke();
     }
     const color = v === "primary" ? T.panel : v === "destructive" ? T.error : hover ? T.text : T.text2;
-    const size = o.size ?? 36;
+    const size = snapType(o.size ?? 34);
     c.font = `600 ${size}px ${T.ui}`;
     c.fillStyle = color;
     c.textAlign = "center";

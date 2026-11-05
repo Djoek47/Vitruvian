@@ -16,6 +16,9 @@ VR body-measurement instrument (WebXR, Meta Quest Browser) plus the Body Passpor
 - Emulator data (`?emulate=`) is always flagged `simulated: true`.
 - Visual source of truth: `design/figma-make/` (tokens in `src/ui/theme.ts`).
 
+## Faberland Port (to the metaverse)
+`docs/PORT.md` describes the avatar package, the Supabase table and Edge Function (`integrations/supabase/`), the TypeScript client (`src/port`, published at `/port/vitruvian-port.js`) and the Unreal plugin functions. Database = Supabase; website = Vercel; payments = Stripe (later).
+
 ## On the developer's PC (Meta VR Developer Hub MCP + Horizon skills)
 The cloud sessions that built this repo could not reach the headset. Locally, with the MQDH MCP server added to Claude Code:
 1. **Verify first**: run `/hz-quest-verify-first` before Quest-specific claims (build path = **WebXR**).

@@ -15,8 +15,10 @@ Vitruvian already runs standalone. To launch it **from** the Faberland Unreal ap
 | Launch | Open `https://<host>/index.html?host=faberland&profile=quick&return=faberland://vitruvian/passport` in the Quest Browser (Android intent from UE), or embed it in a UE Web Browser widget |
 | Return: postMessage | `{ type: "faberland.vitruvian.passport", version: 1, passport }` to `window.parent` / `window.opener` |
 | Return: UE JS binding | If the UE widget binds `window.ue.faberland.onpassport(json)`, it is called with the passport JSON |
-| Return: deep link | Navigates to `return?profileId=…&updatedAt=…&contract=1`. The app then imports the exported JSON or pulls from the future sync service |
+| Return: deep link | Navigates to `return?profileId=…&updatedAt=…&contract=1`. The app then loads the package from Supabase (`docs/PORT.md`) |
 | Pull | Host sends `{ type: "faberland.vitruvian.request" }` and receives the current passport |
+
+The postMessage and UE-binding payloads also carry the sealed **avatar package** (`faberland.avatar-package@1`, see `docs/PORT.md`). The headset → Supabase → Unreal transport is documented there.
 
 The contract lives in `src/integration/faberland.ts` (version 1). The payload is always the canonical Body Passport, so data "compatibilisation" later happens in one place: a passport → Faberland account mapper.
 

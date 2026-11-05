@@ -109,7 +109,7 @@ const app = new VitruvianApp({
   savePassport: async (p) => {
     await store.savePassport(p);
     landing.refresh();
-    if (host.enabled) deliverPassport(p, host);
+    if (host.enabled) void deliverPassport(p, host);
   },
   saveDraft: (s) => {
     clearTimeout(draftTimer);

@@ -1,4 +1,5 @@
 import type { BodyPassport } from "../passport/passport";
+import { buildAvatarPackage, sealPackage } from "../port";
 
 /**
  * FABERLAND HOST INTEGRATION CONTRACT (v1)
@@ -39,9 +40,11 @@ export function hostConfig(search = location.search): HostConfig {
 
 type UeBridge = { faberland?: { onpassport?: (json: string) => void } };
 
-export function deliverPassport(p: BodyPassport, cfg: HostConfig): string[] {
+export async function deliverPassport(p: BodyPassport, cfg: HostConfig): Promise<string[]> {
   const used: string[] = [];
-  const msg = { type: "faberland.vitruvian.passport", version: CONTRACT_VERSION, passport: p };
+  // the host gets the canonical passport AND the sealed avatar package (MetaHuman + Unreal ready)
+  const avatarPackage = await sealPackage(buildAvatarPackage(p));
+  const msg = { type: "faberland.vitruvian.passport", version: CONTRACT_VERSION, passport: p, avatarPackage };
   const targets = [window.parent !== window ? window.parent : null, window.opener as Window | null].filter(Boolean) as Window[];
   for (const t of targets) {
     t.postMessage(msg, cfg.origin);
@@ -49,7 +52,7 @@ export function deliverPassport(p: BodyPassport, cfg: HostConfig): string[] {
   }
   const ue = (window as unknown as { ue?: UeBridge }).ue;
   if (ue?.faberland?.onpassport) {
-    ue.faberland.onpassport(JSON.stringify(p));
+    ue.faberland.onpassport(JSON.stringify(avatarPackage));
     used.push("ue-binding");
   }
   if (cfg.enabled && cfg.returnUrl) {
@@ -65,7 +68,8 @@ export function listenForRequests(get: () => BodyPassport | null, cfg: HostConfi
     if (cfg.origin !== "*" && e.origin !== cfg.origin) return;
     if (e.data?.type === "faberland.vitruvian.request") {
       const p = get();
-      (e.source as Window | null)?.postMessage({ type: "faberland.vitruvian.passport", version: CONTRACT_VERSION, passport: p }, { targetOrigin: cfg.origin });
+      void (p ? sealPackage(buildAvatarPackage(p)) : Promise.resolve(null)).then((avatarPackage) =>
+        (e.source as Window | null)?.postMessage({ type: "faberland.vitruvian.passport", version: CONTRACT_VERSION, passport: p, avatarPackage }, { targetOrigin: cfg.origin }));
     }
   });
 }

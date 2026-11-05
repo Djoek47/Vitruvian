@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://djoek47.github.io/Vitruvian/schemas/avatar-package.schema.json",
+  "title": "Faberland Avatar Package",
+  "description": "faberland.avatar-package@1 — sent from the Vitruvian headset app to the Faberland metaverse. Build with buildAvatarPackage() + sealPackage(); verify with verifyPackage() (vitruvian-port.js).",
+  "type": "object",
+  "required": ["format", "version", "createdAt", "profileId", "passport", "metahuman", "unreal", "quick"],
+  "properties": {
+    "format": { "const": "faberland.avatar-package" },
+    "version": { "const": 1 },
+    "createdAt": { "type": "string", "format": "date-time" },
+    "profileId": { "type": "string" },
+    "displayName": { "type": "string" },
+    "passportUpdatedAt": { "type": "string" },
+    "simulated": { "type": "boolean", "description": "true = emulator data; never fit real garments to it" },
+    "passport": { "$ref": "body-passport.schema.json" },
+    "metahuman": {
+      "type": "object",
+      "properties": {
+        "targets": { "type": "array", "description": "mh-targets-1.0: {target, kind, valueCm, uncertaintyCm, method, status, weight, source}" },
+        "baseBody": { "type": "object", "properties": { "preset": { "type": ["string", "null"], "description": "{m|f}_{srt|med|tal}_{unw|nrw|ovw}" } } },
+        "skeleton": { "type": "array", "items": { "type": "object", "required": ["from", "to", "lengthCm"], "properties": { "from": { "type": "string" }, "to": { "type": "string" }, "lengthCm": { "type": "number" }, "source": { "type": "string" } } } },
+        "skin": { "type": ["object", "null"], "properties": { "hex": { "type": "string" }, "linear": { "type": "array", "minItems": 3, "maxItems": 3 }, "monk": { "type": "integer" }, "whiteBalanced": { "type": "boolean" } } }
+      }
+    },
+    "unreal": { "type": "object", "description": "ue-passport-1.0 (cm, X forward / Y right / Z up) — loads into FVitruvianPassport" },
+    "quick": { "type": "object", "additionalProperties": { "type": "number" }, "description": "{ measurementId: cm }" },
+    "integrity": { "type": "object", "properties": { "algorithm": { "const": "SHA-256" }, "digest": { "type": "string" } }, "description": "SHA-256 of canonicalJson(package without integrity)" }
+  }
+}

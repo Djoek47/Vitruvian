@@ -12,6 +12,7 @@ import { footLengthFromSize, SHOE_SYSTEMS, type ShoeSystem } from "./body/shoe";
 import type { Subject } from "./passport/passport";
 import type { AvatarFit } from "./scene/avatar";
 import { initEvolution } from "./evolution/dashboard";
+import { buildAvatarPackage, buildHistoryPackage, deleteByCode, sealPackage, sendToFaberland, type PortConfig, type PortReceipt } from "./port";
 import { controllersSvg } from "./ui/questController";
 import { PROFILE_INFO, bodyPointsFor } from "./measurement/procedures";
 
@@ -76,12 +77,13 @@ export function initLanding(d: Deps) {
   <section class="card" data-tab="headset" id="about"></section>
   <section class="card" data-tab="headset" id="appearance"></section>
   <section class="card" data-tab="passport" id="passport"></section>
+  <section class="card" data-tab="passport" id="port-card"></section>
   <section class="card" data-tab="passport" id="avatar-card"></section>
   <section class="card" data-tab="evolution" id="evolution"></section>
   <section class="card" data-tab="wardrobe" id="wardrobe"></section>
   <section class="card" data-tab="checkin" id="checkin"></section>
   <section class="card" data-tab="validation" id="validation"></section>
-  <footer>Faberland Vitruvian · Body Passport schema v1.0 · measurement engine is hardware-independent · <span id="build"></span></footer>`;
+  <footer>Faberland Vitruvian · Body Passport schema 1.1 · avatar package faberland.avatar-package@1 · <span id="build"></span></footer>`;
 
   const showTab = (t: string) => {
     document.querySelectorAll<HTMLElement>("section[data-tab]").forEach((el) => (el.hidden = el.dataset.tab !== t));
@@ -187,6 +189,51 @@ export function initLanding(d: Deps) {
     };
   };
 
+  // ── Faberland Port: avatar package → metaverse / website / MetaHuman ─────
+  const renderPort = async (p: BodyPassport | null) => {
+    const el = $("#port-card");
+    const qp = new URLSearchParams(location.search);
+    const saved = (await d.store.getKv<PortConfig>("portConfig").catch(() => undefined)) ?? { url: "", anonKey: "" };
+    const cfg: PortConfig = { url: qp.get("sb") ?? saved.url, anonKey: qp.get("sbkey") ?? saved.anonKey };
+    const receipts = ((await d.store.getKv<PortReceipt[]>("portReceipts").catch(() => undefined)) ?? []).filter((r) => !r.expiresAt || new Date(r.expiresAt) > new Date());
+    el.innerHTML = `<h2>Faberland Port</h2>
+      <p class="dim">Your <b>avatar package</b>: Body Passport + MetaHuman targets, suggested base body, skeleton lengths, skin tone and the Unreal export, sealed with a SHA-256 digest. The Faberland metaverse (Unreal) loads it to build your MetaHuman without measuring again.</p>
+      ${!p ? `<p class="dim">Measure yourself first.</p>` : `
+      <div class="row wrap"><button class="primary" id="pt-dl">Download avatar package (.json)</button><button id="pt-hist">Download full history (.json)</button></div>
+      <h3>Send to the Faberland metaverse</h3>
+      <p class="dim">Uploads the package to Faberland's Supabase and gives you a <b>claim code</b> to enter in the metaverse. Codes expire after 30 days and you can delete them. Nothing is uploaded unless you press Send.</p>
+      <div class="row wrap"><label class="field" style="flex:1;min-width:260px">Supabase project URL<input id="pt-url" placeholder="https://xxxx.supabase.co" value="${esc(cfg.url)}"/></label>
+        <label class="field" style="flex:1;min-width:260px">Public (anon) key<input id="pt-key" placeholder="eyJ… or sb_publishable_…" value="${esc(cfg.anonKey)}"/></label></div>
+      <label class="check"><input type="checkbox" id="pt-consent"/> I agree to upload my body measurements to Faberland.</label>
+      <div class="row"><button id="pt-send" disabled>Send &amp; get a code</button><span id="pt-msg" class="dim"></span></div>
+      ${receipts.length ? `<table>${receipts.map((r) => `<tr><td class="num code">${esc(r.code)}</td><td class="dim">${r.expiresAt ? "expires " + r.expiresAt.slice(0, 10) : "saved to your account"}</td><td>${r.deleteToken ? `<button class="ghost sm" data-delport="${esc(r.code)}">Delete from Faberland</button>` : ""}</td></tr>`).join("")}</table>` : ""}`}`;
+    if (!p) return;
+    const base = `vitruvian-${p.profileId.slice(0, 8)}`;
+    $("#pt-dl").onclick = async () => download(`${base}.avatar-package.json`, JSON.stringify(await sealPackage(buildAvatarPackage(p)), null, 2), "application/json");
+    $("#pt-hist").onclick = async () => download(`${base}.body-history.json`, JSON.stringify(buildHistoryPackage(await d.store.snapshots()), null, 2), "application/json");
+    const consentPort = $<HTMLInputElement>("#pt-consent");
+    consentPort.onchange = () => ($<HTMLButtonElement>("#pt-send").disabled = !consentPort.checked);
+    const readCfg = (): PortConfig => ({ url: $<HTMLInputElement>("#pt-url").value.trim(), anonKey: $<HTMLInputElement>("#pt-key").value.trim() });
+    $("#pt-send").onclick = async () => {
+      const c = readCfg();
+      if (!/^https:\/\/.+/.test(c.url) || !c.anonKey) return ($("#pt-msg").textContent = "Enter the Supabase project URL and public key.");
+      await d.store.setKv("portConfig", c);
+      $("#pt-msg").textContent = "Sending…";
+      try {
+        const r = await sendToFaberland(await sealPackage(buildAvatarPackage(p)), c);
+        await d.store.setKv("portReceipts", [...receipts, r]);
+        renderPort(p);
+      } catch (e) {
+        $("#pt-msg").textContent = (e as Error).message + " — is the vitruvian-port function deployed? (integrations/supabase)";
+      }
+    };
+    el.querySelectorAll<HTMLButtonElement>("[data-delport]").forEach((b) => (b.onclick = async () => {
+      const r = receipts.find((x) => x.code === b.dataset.delport)!;
+      if (await deleteByCode(r.code, r.deleteToken ?? "", readCfg()).catch(() => false)) await d.store.setKv("portReceipts", receipts.filter((x) => x.code !== r.code));
+      renderPort(p);
+    }));
+  };
+
   // ── Avatar slot (MetaHuman / UE5 .glb) ────────────────────────────────────
   const renderAvatar = (fit: AvatarFit | null = null) => {
     $("#avatar-card").innerHTML = `<h2>Avatar</h2>
@@ -272,6 +319,7 @@ export function initLanding(d: Deps) {
       if (ap) d.app.appearance = ap;
     }
     renderPassport(latest, versions);
+    void renderPort(latest);
     renderValidation(latest, d.app.studio.readings);
     if (!$("#about").innerHTML) {
       renderAbout();
