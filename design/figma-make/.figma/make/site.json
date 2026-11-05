@@ -1,0 +1,10 @@
+{
+  "description": "Transform AR experiences into immersive VR environments for Quest users, enhancing engagement and interaction in virtual spaces.",
+  "robots": {
+    "index": false
+  },
+  "accessibility": {
+    "addBypassLinks": false,
+    "ignoreReducedMotion": false
+  }
+}

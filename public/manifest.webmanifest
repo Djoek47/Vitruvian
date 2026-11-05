@@ -1,0 +1,15 @@
+{
+  "name": "Faberland Vitruvian",
+  "short_name": "Vitruvian",
+  "description": "VR body measurement instrument — your Faberland Body Passport.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#0D0B08",
+  "theme_color": "#0D0B08",
+  "orientation": "landscape",
+  "icons": [
+    { "src": "brand/faberland-star-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "brand/faberland-star-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" }
+  ]
+}

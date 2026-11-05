@@ -1,0 +1,79 @@
+command_id,category,label_en,label_fr,voice_triggers,icon_id,binding_controller,binding_hands,range,surface,component,destructive,notes
+assistant_wake,assistant,Wake assistant,Activer l'assistant,hey faberland|wake up|assistant,icon_star,Left Y,Palm up,voice,hud_headlocked,star_state,no,Wake word must work hands-free with controllers down
+assistant_sleep,assistant,Dismiss assistant,Mettre en veille,never mind|dismiss|go to sleep,icon_star_dim,Left Y hold,Palm down,voice,hud_headlocked,star_state,no,Returns star to dormant at 30 percent opacity
+assistant_cancel,assistant,Cancel,Annuler,cancel|stop|forget it,icon_x,Right B,Pinch cancel chip,ray,panel_response,button_ghost,no,Must interrupt mid-utterance (barge-in)
+assistant_repeat,assistant,Repeat that,Répéter,say that again|repeat|what,icon_replay,none,Pinch chip,ray,panel_response,button_secondary,no,
+assistant_transcript,assistant,Show transcript,Afficher la transcription,show transcript|what did I say,icon_transcript,none,Pinch,ray,panel_response,toggle,no,
+assistant_pin,assistant,Pin response,Épingler,pin this|keep this,icon_pin,Right A hold,Pinch and hold,ray,panel_response,icon_button,no,Converts body-locked panel to world-locked
+assistant_dismiss,assistant,Dismiss panel,Fermer le panneau,close|dismiss this,icon_x,Right B,Pinch,ray,panel_response,icon_button,no,
+assistant_followup,assistant,Follow-up suggestion,Suggestion de suivi,none,icon_chevron,Right trigger,Pinch,ray,panel_response,chip,no,Three slots max per response card
+assistant_commands,assistant,What can you do,Que peux-tu faire,what can you do|help|commands,icon_list,none,Pinch,ray,panel_commands,list_row,no,Opens grouped scrollable command list
+nav_map,navigation,Open city map,Ouvrir la carte,open map|show me the map|where am I,icon_map,Left X then map,Palm menu sector 1,ray,panel_navigator,button_primary,no,
+nav_teleport,navigation,Teleport,Se téléporter,take me to|go to,icon_teleport,Right thumbstick forward,Pinch and point,ray,world,handle_target,no,Arc indicator plus landing disc
+nav_turn_left,navigation,Snap turn left,Pivoter à gauche,turn left,icon_turn_l,Left thumbstick left,none,direct,world,none,no,Snap increment configurable in settings
+nav_turn_right,navigation,Snap turn right,Pivoter à droite,turn right,icon_turn_r,Left thumbstick right,none,direct,world,none,no,
+nav_move,navigation,Move,Se déplacer,none,icon_move,Left thumbstick,none,direct,world,none,no,Comfort vignette optional in settings
+nav_recenter,navigation,Recenter view,Recentrer la vue,recenter|reset my view,icon_recenter,Left thumbstick click,Palm menu sector 6,direct,hud_headlocked,icon_button,no,
+nav_home,navigation,Go home,Retour à l'accueil,take me home|go home,icon_home,none,Palm menu sector 2,ray,panel_navigator,button_secondary,no,
+nav_search,navigation,Search districts,Rechercher un quartier,find|search for,icon_search,Right trigger on field,Pinch on field,ray,panel_navigator,input_dictation,no,Dictation affordance required
+nav_bookmark,navigation,Bookmark location,Ajouter un signet,bookmark this|save this spot,icon_bookmark,Right A hold,Pinch and hold,ray,panel_navigator,icon_button,no,
+nav_back,navigation,Previous location,Emplacement précédent,go back|previous,icon_back,Right B,Pinch,ray,panel_navigator,button_ghost,no,
+manip_select,manipulation,Select,Sélectionner,select this|pick this,icon_cursor,Right trigger,Pinch,ray,world,handle_bracket,no,Drives hovered and selected outline states
+manip_deselect,manipulation,Deselect all,Tout désélectionner,deselect|clear selection,icon_cursor_off,Right B,Pinch empty space,ray,world,none,no,
+manip_mode_move,manipulation,Move mode,Mode déplacement,move mode|let me move it,icon_move_axis,Segmented control,Pinch segment,ray,panel_inspector,segmented,no,
+manip_mode_rotate,manipulation,Rotate mode,Mode rotation,rotate mode|let me turn it,icon_rotate,Segmented control,Pinch segment,ray,panel_inspector,segmented,no,Shows three color-coded rotation rings
+manip_mode_scale,manipulation,Scale mode,Mode échelle,scale mode|resize this,icon_scale,Segmented control,Pinch segment,ray,panel_inspector,segmented,no,
+manip_mode_measure,manipulation,Measure mode,Mode mesure,measure mode|measure this,icon_ruler,Segmented control,Pinch segment,ray,panel_inspector,segmented,no,
+manip_grab_near,manipulation,Grab,Saisir,none,icon_grab,Right grip,Full grab,direct,world,handle_corner,no,Under 0.5 m only
+manip_grab_far,manipulation,Grab at distance,Saisir à distance,none,icon_grab_ray,Right trigger hold,Pinch and hold,ray,world,handle_corner,no,
+manip_scale_two_hand,manipulation,Two-hand scale,Échelle à deux mains,none,icon_scale_2h,Both grips,Both pinch,direct,world,readout_scale,no,Live numeric readout at gesture midpoint
+manip_uniform_lock,manipulation,Lock proportions,Verrouiller les proportions,lock proportions|keep it uniform,icon_chain,Pinch toggle,Pinch,ray,panel_inspector,toggle,no,
+manip_snap_toggle,manipulation,Snap,Aimantation,snap on|turn off snap,icon_grid,Pinch toggle,Pinch,ray,panel_inspector,toggle,no,
+manip_snap_increment,manipulation,Snap increment,Pas d'aimantation,snap to ten centimetres,icon_grid_size,Thumbstick,Pinch scrub,ray,panel_inspector,segmented,no,Values off|1cm|10cm|25cm|1m
+manip_duplicate,manipulation,Duplicate,Dupliquer,duplicate this|make a copy,icon_copy,Right A hold,Pinch and hold,ray,panel_inspector,button_secondary,no,
+manip_delete,manipulation,Delete,Supprimer,delete this|remove it,icon_trash,none,Pinch,ray,panel_inspector,button_destructive,yes,Requires confirm modal
+manip_undo,manipulation,Undo,Annuler l'action,undo|take that back,icon_undo,Left X double,Palm menu sector 5,ray,hint_bar,icon_button,no,
+manip_redo,manipulation,Redo,Rétablir,redo,icon_redo,none,Palm menu sector 5 hold,ray,hint_bar,icon_button,no,
+manip_reset,manipulation,Reset transform,Réinitialiser,reset this|put it back,icon_reset,none,Pinch,ray,panel_inspector,button_ghost,yes,Confirm if object was heavily edited
+manip_lock,manipulation,Lock object,Verrouiller l'objet,lock this,icon_lock,none,Pinch,ray,panel_inspector,toggle,no,Switches outline to ember dashed
+manip_fit_body,manipulation,Fit to my body,Ajuster à mon corps,fit this to me|size it to my body,icon_vitruvian,none,Pinch,ray,panel_inspector,button_primary,no,Consumes active Vitruvian profile
+manip_inspector,manipulation,Open inspector,Ouvrir l'inspecteur,open inspector|show dimensions,icon_sliders,Right A,Pinch,ray,panel_inspector,button_primary,no,
+measure_point,manipulation,Drop measure point,Placer un point,none,icon_point,Right trigger,Pinch,ray,world,label_measure,no,Multi-segment chains stay visible
+measure_clear,manipulation,Clear measurements,Effacer les mesures,clear measurements,icon_ruler_off,none,Pinch,ray,hint_bar,button_ghost,yes,
+vitruvian_open,vitruvian,Open body editor,Ouvrir l'éditeur corporel,open my body profile|body editor,icon_vitruvian,Palm menu sector 3,Palm menu sector 3,ray,panel_vitruvian,button_primary,no,
+vitruvian_scan,vitruvian,Start body scan,Démarrer le balayage,scan my body|measure me,icon_scan,none,Pinch,ray,panel_vitruvian,button_primary,no,Consent gate must precede
+vitruvian_consent,vitruvian,Consent to scan,Consentir au balayage,none,icon_shield,none,Pinch,ray,panel_consent,button_primary,no,Decline path must leave app usable
+vitruvian_recapture,vitruvian,Re-measure dimension,Remesurer,measure my arm again,icon_scan_one,none,Pinch,ray,panel_vitruvian_detail,button_secondary,no,Targeted single-dimension capture
+vitruvian_edit,vitruvian,Edit value,Modifier la valeur,set my waist to|change my height,icon_pencil,Right trigger on field,Pinch on field,ray,panel_vitruvian_detail,input_numeric,no,Sets confidence badge to manual
+vitruvian_symmetry,vitruvian,Mirror left and right,Symétrie gauche-droite,mirror this|same on both sides,icon_mirror,Pinch toggle,Pinch,ray,panel_vitruvian_detail,toggle,no,
+vitruvian_units,vitruvian,Change units,Changer d'unités,switch to inches|use centimetres,icon_units,Pinch toggle,Pinch,ray,panel_vitruvian,segmented,no,Values cm|m|in|ft
+vitruvian_landmark,vitruvian,Adjust landmark,Ajuster un repère,none,icon_node,Right trigger drag,Pinch drag,ray,viewport_body,handle_node,no,Draggable joint nodes for manual correction
+vitruvian_view,vitruvian,Change view,Changer de vue,show me the side view,icon_orbit,Thumbstick,Pinch drag,ray,viewport_body,segmented,no,Values front|side|three-quarter|back
+vitruvian_ghost,vitruvian,Compare to previous,Comparer au profil précédent,show my old profile,icon_ghost,Pinch toggle,Pinch,ray,viewport_body,toggle,no,
+vitruvian_save,vitruvian,Save profile,Enregistrer le profil,save this profile,icon_save,none,Pinch,ray,panel_vitruvian,button_primary,no,
+vitruvian_compare,vitruvian,Compare profiles,Comparer les profils,compare my profiles,icon_compare,none,Pinch,ray,panel_profiles,button_secondary,no,Side by side with delta column
+vitruvian_export,vitruvian,Export profile,Exporter le profil,export my measurements,icon_export,none,Pinch,ray,panel_profiles,button_secondary,no,Must be prominent not buried
+vitruvian_delete,vitruvian,Delete profile,Supprimer le profil,delete my body profile,icon_trash,none,Pinch,ray,panel_profiles,button_destructive,yes,Hard delete plus confirm modal
+vitruvian_apply,vitruvian,Apply to avatar,Appliquer à l'avatar,use this profile|apply to my avatar,icon_avatar,none,Pinch,ray,panel_vitruvian,button_primary,no,
+commerce_inspect,commerce,Inspect space,Examiner l'espace,tell me about this space|what is this,icon_info,Right trigger,Pinch,ray,panel_property,button_primary,no,
+commerce_rent,commerce,Rent this space,Louer cet espace,rent this|I want this space,icon_key,none,Pinch,ray,panel_property,button_primary,no,Longest French string - size button for it
+commerce_lease,commerce,View lease terms,Voir les conditions,show me the lease|what are the terms,icon_document,none,Pinch,ray,panel_property,button_secondary,no,
+commerce_cart,commerce,Open cart,Ouvrir le panier,open my cart|what's in my cart,icon_cart,Palm menu sector 4,Palm menu sector 4,ray,panel_cart,button_primary,no,
+commerce_checkout,commerce,Checkout,Passer à la caisse,check out|pay now,icon_card,none,Pinch,ray,panel_cart,button_primary,yes,Confirm step before charge
+commerce_try_on,commerce,Try on,Essayer,try this on|let me see it on me,icon_garment,none,Pinch,ray,panel_property,button_primary,no,Uses active Vitruvian profile
+commerce_size,commerce,Change size,Changer de taille,make it larger|size up,icon_size,Thumbstick,Pinch scrub,ray,panel_property,segmented,no,
+commerce_colour,commerce,Change colour,Changer de couleur,show me it in black,icon_palette,Thumbstick,Pinch,ray,panel_property,chip,no,
+lobby_invite,lobby,Invite someone,Inviter quelqu'un,invite|bring someone here,icon_person_add,none,Pinch,ray,panel_lobby,button_primary,no,Four user maximum
+lobby_mute_self,lobby,Mute myself,Me mettre en sourdine,mute me|mute myself,icon_mic_off,Left Y double,Palm menu sector 7,ray,hud_headlocked,toggle,no,State must be visible in status cluster
+lobby_mute_user,lobby,Mute user,Mettre en sourdine,mute them,icon_person_mute,none,Pinch,ray,panel_lobby,icon_button,no,
+lobby_occupancy,lobby,Who is here,Qui est présent,who's here|who else is in here,icon_people,none,Pinch,ray,panel_lobby,list_row,no,
+lobby_leave,lobby,Leave lobby,Quitter le salon,leave|exit this lobby,icon_exit,none,Pinch,ray,panel_lobby,button_destructive,yes,
+system_settings,system,Open settings,Ouvrir les paramètres,settings|open settings,icon_gear,Palm menu sector 8,Palm menu sector 8,ray,panel_settings,button_primary,no,
+system_passthrough,system,Toggle passthrough,Basculer la vue réelle,passthrough|show me the room,icon_passthrough,none,Pinch,ray,panel_settings,toggle,no,
+system_seated,system,Seated mode,Mode assis,seated mode|I'm sitting down,icon_seated,none,Pinch,ray,panel_settings,toggle,no,Accessibility - required not optional
+system_height,system,Height offset,Décalage de hauteur,raise my view|lower my view,icon_height,Thumbstick,Pinch scrub,ray,panel_settings,slider,no,Accessibility
+system_handedness,system,Left-handed mode,Mode gaucher,I'm left handed|swap hands,icon_hand_left,none,Pinch,ray,panel_settings,toggle,no,Mirrors palm menu and all bindings
+system_language,system,Language,Langue,switch to french|en français,icon_language,none,Pinch,ray,panel_settings,segmented,no,Values FR|EN - French default in Quebec
+system_hud_opacity,system,HUD opacity,Opacité de l'ATH,dim the display|brighten the hud,icon_opacity,Thumbstick,Pinch scrub,ray,panel_settings,slider,no,
+system_help,system,Help and tutorial,Aide et tutoriel,help|how do I,icon_help,none,Pinch,ray,panel_onboarding,button_secondary,no,
+system_input_hints,system,Show input hints,Afficher les astuces,show hints|show controls,icon_controller,none,Pinch,ray,hint_bar,toggle,no,Switches glyph family controller vs hands

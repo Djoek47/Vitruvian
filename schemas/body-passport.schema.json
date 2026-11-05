@@ -1,0 +1,109 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://faberland.online/schemas/body-passport/1.0.json",
+  "title": "Faberland Body Passport",
+  "description": "Canonical, versioned record of one person's body measurements. Hardware-independent. Units: millimetres. Mirrors validatePassport() in src/passport/passport.ts.",
+  "type": "object",
+  "required": ["schemaVersion", "profileId", "displayName", "units", "createdAt", "updatedAt", "profile", "hardware", "calibration", "measurements", "landmarks", "bodyModel", "consent"],
+  "properties": {
+    "schemaVersion": { "enum": ["1.0", "1.1"], "description": "1.1 adds optional subject, composition, appearance and bodyModel.generator" },
+    "profileId": { "type": "string", "description": "Stable UUID; kept across re-measurements so history links to one person." },
+    "displayName": { "type": "string" },
+    "units": { "const": "mm" },
+    "createdAt": { "type": "string", "format": "date-time" },
+    "updatedAt": { "type": "string", "format": "date-time" },
+    "profile": { "enum": ["quick", "precision"] },
+    "hardware": {
+      "type": "object",
+      "required": ["device", "tracking", "simulated"],
+      "properties": {
+        "device": { "type": "string" },
+        "tracking": { "enum": ["WebXR/OpenXR", "simulator"] },
+        "userAgent": { "type": "string" },
+        "simulated": { "type": "boolean", "description": "true = produced by an emulator. Never use for a real fit." }
+      }
+    },
+    "calibration": {
+      "type": "object",
+      "required": ["floorCalibrated", "bodyOriginEstablished", "tipCalibrated", "tipOffsetMm"],
+      "properties": {
+        "floorCalibrated": { "type": "boolean" },
+        "bodyOriginEstablished": { "type": "boolean" },
+        "tipCalibrated": { "type": "boolean" },
+        "tipOffsetMm": { "type": "number" },
+        "tipResidualMm": { "type": ["number", "null"] },
+        "timestamp": { "type": ["string", "null"] },
+        "floorY": { "type": ["number", "null"], "description": "metres, XR local-floor space" },
+        "bodyFrame": {
+          "type": ["object", "null"],
+          "description": "Anatomical frame (metres, XR local-floor): origin on floor under the user; forward/lateral/up unit vectors.",
+          "properties": { "origin": { "$ref": "#/$defs/vec3" }, "forward": { "$ref": "#/$defs/vec3" }, "lateral": { "$ref": "#/$defs/vec3" }, "up": { "$ref": "#/$defs/vec3" } }
+        }
+      }
+    },
+    "measurements": { "type": "array", "items": { "$ref": "#/$defs/measurement" } },
+    "landmarks": { "type": "array", "items": { "$ref": "#/$defs/landmark" } },
+    "captures": { "type": "array", "description": "Raw accepted/rejected capture log for audit." },
+    "bodyModel": {
+      "type": "object",
+      "properties": { "format": { "const": "OBJ" }, "kind": { "const": "parametric-measurement-mannequin" }, "reference": { "type": ["string", "null"] }, "note": { "type": "string" } }
+    },
+    "subject": { "type": "object", "description": "User-entered (manual): weightKg, ageYears, sex (for equations only), shoe {system,size,footLengthMm}" },
+    "composition": { "type": "object", "description": "ESTIMATES: bmi, bodyFatPct (US Navy), fatMassKg, leanMassKg, ffmi, ffmiNormalized, bodyVolumeL, bodyDensityKgL — each {value,unit,uncertainty,method,procedure}" },
+    "appearance": { "type": "object", "description": "Optional, separate consent: skinTone {hex, srgb, linear, lab, itaDeg, itaCategory, monk, whiteBalanced, ...}, photoStored" },
+    "avatar": { "type": "object", "properties": { "reference": { "type": ["string", "null"], "description": "e.g. MetaHuman asset id in the Faberland app" } } },
+    "validation": {
+      "type": "object",
+      "properties": {
+        "referenceMeasurements": {
+          "type": "array",
+          "items": { "type": "object", "required": ["id", "tapeMm"], "properties": { "id": { "type": "string" }, "tapeMm": { "type": "number" }, "method": { "type": "string" }, "timestamp": { "type": "string" } } }
+        }
+      }
+    },
+    "consent": {
+      "type": "object",
+      "required": ["measurementStorage", "faceCapture", "timestamp"],
+      "properties": { "measurementStorage": { "type": "boolean" }, "faceCapture": { "const": false }, "timestamp": { "type": "string" } }
+    }
+  },
+  "$defs": {
+    "vec3": { "type": "object", "required": ["x", "y", "z"], "properties": { "x": { "type": "number" }, "y": { "type": "number" }, "z": { "type": "number" } } },
+    "measurement": {
+      "type": "object",
+      "required": ["id", "value", "unit", "method", "confidence", "uncertaintyMm", "status", "timestamp", "sources", "procedure", "history"],
+      "properties": {
+        "id": { "type": "string", "description": "Registry id, see src/measurement/registry.ts" },
+        "value": { "type": "number", "exclusiveMinimum": 0 },
+        "unit": { "const": "mm" },
+        "method": { "enum": ["direct", "derived", "estimated", "manual"] },
+        "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+        "uncertaintyMm": { "type": "number", "minimum": 0 },
+        "status": { "enum": ["validated", "unvalidated", "conflicted"] },
+        "timestamp": { "type": "string" },
+        "sources": { "type": "array", "items": { "type": "string" } },
+        "procedure": { "type": "string" },
+        "conflicts": { "type": "array", "items": { "type": "string" } },
+        "locked": { "type": "boolean" },
+        "history": { "type": "array", "items": { "type": "object", "properties": { "value": { "type": "number" }, "method": { "type": "string" }, "timestamp": { "type": "string" } } } }
+      }
+    },
+    "landmark": {
+      "type": "object",
+      "required": ["id", "position", "body", "captureMethod", "timestamp", "coordinateSpace"],
+      "properties": {
+        "id": { "type": "string" },
+        "position": { "$ref": "#/$defs/vec3" },
+        "body": { "$ref": "#/$defs/vec3", "description": "metres in body frame: x right, y up from floor, z forward" },
+        "confidence": { "type": "number" },
+        "captureMethod": { "enum": ["controller-tip", "controller-grip", "headset"] },
+        "controller": { "enum": ["left", "right"] },
+        "timestamp": { "type": "string" },
+        "coordinateSpace": { "const": "xr-local-floor" },
+        "spreadMm": { "type": "number" },
+        "validation": { "enum": ["confirmed", "rejected"] },
+        "stepId": { "type": "string" }
+      }
+    }
+  }
+}

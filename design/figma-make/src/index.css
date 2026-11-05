@@ -1,0 +1,107 @@
+@import url('https://fonts.googleapis.com/css2?family=Chakra+Petch:ital,wght@0,500;0,600;0,700;1,600;1,700&family=Inter:wght@400;500;600&display=swap');
+@import 'tailwindcss';
+
+@theme {
+  --color-faber-gold: #FFC61A;
+  --color-faber-amber: #F5A81C;
+  --color-faber-ember: #FF3D00;
+  --color-faber-panel: #0D0B08;
+  --color-faber-surface: #1A1611;
+  --color-faber-surface-2: #231E17;
+  --color-text-primary: #FFF6E6;
+  --color-text-secondary: #C9BFB0;
+  --color-text-tertiary: #8A8176;
+  --color-state-info: #5BC8FF;
+  --color-state-success: #3DD68C;
+  --color-state-error: #FF2E88;
+  --color-state-warning: #FF3D00;
+
+  --font-display: 'Chakra Petch', sans-serif;
+  --font-ui: 'Inter', sans-serif;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: #0D0B08;
+  color: #FFF6E6;
+  font-family: 'Inter', sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Hide scrollbars by default */
+* {
+  scrollbar-width: none;
+}
+*::-webkit-scrollbar {
+  display: none;
+}
+
+/* Panel chrome: gold top-edge, no other borders */
+.panel-chrome {
+  background: rgba(13, 11, 8, 0.72);
+  border-radius: 16px;
+  position: relative;
+  overflow: hidden;
+}
+.panel-chrome::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: rgba(255, 198, 26, 0.4);
+}
+.panel-chrome-primary {
+  border-radius: 24px;
+}
+.panel-chrome-primary::before {
+  background: rgba(255, 198, 26, 0.5);
+}
+
+/* Grab handle */
+@keyframes starPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.04); }
+}
+@keyframes star-wake {
+  0%   { transform: scale(1); }
+  40%  { transform: scale(1.15); }
+  100% { transform: scale(1); }
+}
+@keyframes star-listen {
+  0%, 100% { transform: rotate(0deg) scaleY(1); }
+  25%       { transform: rotate(6deg) scaleY(1.06); }
+  75%       { transform: rotate(-6deg) scaleY(0.95); }
+}
+@keyframes star-think {
+  0%   { transform: rotate(0deg) scale(1); }
+  100% { transform: rotate(-360deg) scale(0.85); }
+}
+@keyframes star-speak {
+  0%, 100% { transform: scaleY(1); }
+  50%       { transform: scaleY(1.12); }
+}
+.animate-star-wake   { animation: star-wake   0.6s ease forwards;          transform-origin: center; }
+.animate-star-listen { animation: star-listen 2.4s ease-in-out infinite;   transform-origin: center; }
+.animate-star-think  { animation: star-think  3s   linear    infinite;     transform-origin: center; }
+.animate-star-speak  { animation: star-speak  0.8s ease-in-out infinite;   transform-origin: center; }
+
+.grab-handle::after {
+  content: '';
+  position: absolute;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 120px;
+  height: 4px;
+  background: #FFC61A;
+  border-radius: 2px;
+}

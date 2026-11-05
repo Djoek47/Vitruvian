@@ -1,0 +1,1017 @@
+{
+  "schemaVersion": "1.0",
+  "profileId": "6f4148f3-a3a1-4371-8b2c-593518fae776",
+  "displayName": "My Body Passport",
+  "units": "mm",
+  "createdAt": "2026-11-05T05:47:34.687Z",
+  "updatedAt": "2026-11-05T05:47:34.687Z",
+  "profile": "quick",
+  "hardware": {
+    "device": "IWER emulated Meta Quest (SIMULATOR — not real tracking)",
+    "tracking": "simulator",
+    "userAgent": "Mozilla/5.0 (X11; Linux x86_64; Quest 3) AppleWebKit/537.36 (KHTML, like Gecko) OculusBrowser/33.0.0.x.x.x Chrome/126.0.6478.122 VR Safari/537.36",
+    "simulated": true
+  },
+  "calibration": {
+    "floorCalibrated": true,
+    "bodyOriginEstablished": true,
+    "tipCalibrated": true,
+    "tipOffsetMm": 0,
+    "tipResidualMm": 0,
+    "timestamp": "2026-11-05T05:46:03.173Z",
+    "floorY": 0,
+    "bodyFrame": {
+      "origin": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "forward": {
+        "x": 0,
+        "y": 0,
+        "z": -1
+      },
+      "lateral": {
+        "x": 1,
+        "y": 0,
+        "z": 0
+      },
+      "up": {
+        "x": 0,
+        "y": 1,
+        "z": 0
+      }
+    }
+  },
+  "measurements": [
+    {
+      "id": "height",
+      "value": 1779.9999713897705,
+      "unit": "mm",
+      "method": "direct",
+      "confidence": 0.8893280632411067,
+      "uncertaintyMm": 5.291502622129181,
+      "status": "unvalidated",
+      "timestamp": "2026-11-05T05:46:12.961Z",
+      "sources": [
+        "top_of_head",
+        "floor"
+      ],
+      "procedure": "Controller tip on vertex, height above calibrated floor",
+      "history": []
+    },
+    {
+      "id": "shoulder_width",
+      "value": 400.0000059604645,
+      "unit": "mm",
+      "method": "direct",
+      "confidence": 0.6329113924050633,
+      "uncertaintyMm": 7.615773105863908,
+      "status": "unvalidated",
+      "timestamp": "2026-11-05T05:46:23.454Z",
+      "sources": [
+        "acromion_l",
+        "acromion_r"
+      ],
+      "procedure": "Crossed-arm simultaneous tip capture, straight-line acromion to acromion",
+      "history": []
+    },
+    {
+      "id": "chest_width",
+      "value": 319.9999928474426,
+      "unit": "mm",
+      "method": "direct",
+      "confidence": 0.4854368932038835,
+      "uncertaintyMm": 10.295630140987,
+      "status": "unvalidated",
+      "timestamp": "2026-11-05T05:46:34.092Z",
+      "sources": [
+        "chest_side_l",
+        "chest_side_r"
+      ],
+      "procedure": "Simultaneous two-tip capture, separation projected on body lateral axis",
+      "history": []
+    },
+    {
+      "id": "chest_depth",
+      "value": 239.99999463558197,
+      "unit": "mm",
+      "method": "direct",
+      "confidence": 0.4807692307692308,
+      "uncertaintyMm": 10.392304845413264,
+      "status": "unvalidated",
+      "timestamp": "2026-11-05T05:46:42.905Z",
+      "sources": [
+        "chest_front",
+        "chest_back"
+      ],
+      "procedure": "Simultaneous two-tip capture, separation projected on body forward axis",
+      "history": []
+    },
+    {
+      "id": "chest_circumference",
+      "value": 913.701202005453,
+      "unit": "mm",
+      "method": "derived",
+      "confidence": 0.23344256960636348,
+      "uncertaintyMm": 36.24201343219055,
+      "status": "unvalidated",
+      "timestamp": "2026-11-05T05:46:42.905Z",
+      "sources": [
+        "chest_width",
+        "chest_depth"
+      ],
+      "procedure": "Superellipse cross-section (n=2.40, prior) from measured breadth and depth",
+      "history": []
+    },
+    {
+      "id": "waist_width",
+      "value": 289.99999165534973,
+      "unit": "mm",
+      "method": "direct",
+      "confidence": 0.4854368932038835,
+      "uncertaintyMm": 10.295630140987,
+      "status": "unvalidated",
+      "timestamp": "2026-11-05T05:46:52.106Z",
+      "sources": [
+        "waist_side_l",
+        "waist_side_r"
+      ],
+      "procedure": "Simultaneous two-tip capture, separation projected on body lateral axis",
+      "history": []
+    },
+    {
+      "id": "waist_depth",
+      "value": 219.9999988079071,
+      "unit": "mm",
+      "method": "direct",
+      "confidence": 0.4854368932038835,
+      "uncertaintyMm": 10.295630140987,
+      "status": "unvalidated",
+      "timestamp": "2026-11-05T05:47:01.251Z",
+      "sources": [
+        "waist_front",
+        "waist_back"
+      ],
+      "procedure": "Simultaneous two-tip capture, separation projected on body forward axis",
+      "history": []
+    },
+    {
+      "id": "waist_circumference",
+      "value": 822.4600400022005,
+      "unit": "mm",
+      "method": "derived",
+      "confidence": 0.25746387198867526,
+      "uncertaintyMm": 33.964923600320155,
+      "status": "unvalidated",
+      "timestamp": "2026-11-05T05:47:01.251Z",
+      "sources": [
+        "waist_width",
+        "waist_depth"
+      ],
+      "procedure": "Superellipse cross-section (n=2.25, prior) from measured breadth and depth",
+      "history": []
+    },
+    {
+      "id": "hip_width",
+      "value": 349.9999940395355,
+      "unit": "mm",
+      "method": "direct",
+      "confidence": 0.4854368932038835,
+      "uncertaintyMm": 10.295630140987,
+      "status": "unvalidated",
+      "timestamp": "2026-11-05T05:47:10.112Z",
+      "sources": [
+        "hip_side_l",
+        "hip_side_r"
+      ],
+      "procedure": "Simultaneous two-tip capture, separation projected on body lateral axis",
+      "history": []
+    },
+    {
+      "id": "hip_depth",
+      "value": 249.9999925494194,
+      "unit": "mm",
+      "method": "direct",
+      "confidence": 0.423728813559322,
+      "uncertaintyMm": 11.661903789690601,
+      "status": "unvalidated",
+      "timestamp": "2026-11-05T05:47:18.541Z",
+      "sources": [
+        "hip_front",
+        "hip_back"
+      ],
+      "procedure": "Simultaneous two-tip capture, separation projected on body forward axis",
+      "history": []
+    },
+    {
+      "id": "hip_circumference",
+      "value": 976.8628884837279,
+      "unit": "mm",
+      "method": "derived",
+      "confidence": 0.21293286829798413,
+      "uncertaintyMm": 38.45161026255895,
+      "status": "unvalidated",
+      "timestamp": "2026-11-05T05:47:18.541Z",
+      "sources": [
+        "hip_width",
+        "hip_depth"
+      ],
+      "procedure": "Superellipse cross-section (n=2.35, prior) from measured breadth and depth",
+      "history": []
+    },
+    {
+      "id": "arm_length",
+      "value": 580.2019720968333,
+      "unit": "mm",
+      "method": "direct",
+      "confidence": 0.7258064516129032,
+      "uncertaintyMm": 9.219544457292887,
+      "status": "unvalidated",
+      "timestamp": "2026-11-05T05:47:34.686Z",
+      "sources": [
+        "arm_acromion_r",
+        "wrist_r"
+      ],
+      "procedure": "Sequential tip capture, arm hanging straight, acromion to ulnar styloid",
+      "history": []
+    },
+    {
+      "id": "shoulder_height",
+      "value": 1460.0000381469727,
+      "unit": "mm",
+      "method": "direct",
+      "confidence": 0.8587786259541985,
+      "uncertaintyMm": 6.082762530298219,
+      "status": "unvalidated",
+      "timestamp": "2026-11-05T05:47:26.962Z",
+      "sources": [
+        "arm_acromion_r",
+        "floor"
+      ],
+      "procedure": "Acromion (arm hanging) height above floor",
+      "history": []
+    },
+    {
+      "id": "waist_height",
+      "value": 1080.0000429153442,
+      "unit": "mm",
+      "method": "direct",
+      "confidence": 0.8121546961325967,
+      "uncertaintyMm": 7.213932098830056,
+      "status": "unvalidated",
+      "timestamp": "2026-11-05T05:46:52.106Z",
+      "sources": [
+        "waist_side_l",
+        "waist_side_r",
+        "floor"
+      ],
+      "procedure": "Mean height of waist side landmarks above floor",
+      "history": []
+    },
+    {
+      "id": "outseam",
+      "value": 1080.0000429153442,
+      "unit": "mm",
+      "method": "derived",
+      "confidence": 0.8121546961325967,
+      "uncertaintyMm": 7.213932098830056,
+      "status": "unvalidated",
+      "timestamp": "2026-11-05T05:46:52.106Z",
+      "sources": [
+        "waist_height"
+      ],
+      "procedure": "Equal to waist height above floor (straight-leg outseam)",
+      "history": []
+    }
+  ],
+  "landmarks": [
+    {
+      "id": "floor",
+      "position": {
+        "x": 0.25,
+        "y": 0,
+        "z": -0.10000000149011612
+      },
+      "body": {
+        "x": 0.25,
+        "y": 0,
+        "z": 0.10000000149011612
+      },
+      "confidence": 1,
+      "captureMethod": "controller-tip",
+      "controller": "right",
+      "timestamp": "2026-11-05T05:45:51.714Z",
+      "coordinateSpace": "xr-local-floor",
+      "spreadMm": 0,
+      "validation": "confirmed",
+      "stepId": "cal_floor"
+    },
+    {
+      "id": "top_of_head",
+      "position": {
+        "x": 0,
+        "y": 1.7799999713897705,
+        "z": 0
+      },
+      "body": {
+        "x": 0,
+        "y": 1.7799999713897705,
+        "z": 0
+      },
+      "confidence": 1,
+      "captureMethod": "controller-tip",
+      "controller": "right",
+      "timestamp": "2026-11-05T05:46:07.151Z",
+      "coordinateSpace": "xr-local-floor",
+      "spreadMm": 0,
+      "validation": "confirmed",
+      "stepId": "crown"
+    },
+    {
+      "id": "acromion_r",
+      "position": {
+        "x": 0.20000000298023224,
+        "y": 1.4600000381469727,
+        "z": 0
+      },
+      "body": {
+        "x": 0.20000000298023224,
+        "y": 1.4600000381469727,
+        "z": 0
+      },
+      "confidence": 1,
+      "captureMethod": "controller-tip",
+      "controller": "left",
+      "timestamp": "2026-11-05T05:46:17.803Z",
+      "coordinateSpace": "xr-local-floor",
+      "spreadMm": 0,
+      "validation": "confirmed",
+      "stepId": "acromions"
+    },
+    {
+      "id": "acromion_l",
+      "position": {
+        "x": -0.20000000298023224,
+        "y": 1.4600000381469727,
+        "z": 0
+      },
+      "body": {
+        "x": -0.20000000298023224,
+        "y": 1.4600000381469727,
+        "z": 0
+      },
+      "confidence": 1,
+      "captureMethod": "controller-tip",
+      "controller": "right",
+      "timestamp": "2026-11-05T05:46:17.803Z",
+      "coordinateSpace": "xr-local-floor",
+      "spreadMm": 0,
+      "validation": "confirmed",
+      "stepId": "acromions"
+    },
+    {
+      "id": "chest_side_l",
+      "position": {
+        "x": -0.1599999964237213,
+        "y": 1.2799999713897705,
+        "z": 0
+      },
+      "body": {
+        "x": -0.1599999964237213,
+        "y": 1.2799999713897705,
+        "z": 0
+      },
+      "confidence": 1,
+      "captureMethod": "controller-tip",
+      "controller": "left",
+      "timestamp": "2026-11-05T05:46:28.204Z",
+      "coordinateSpace": "xr-local-floor",
+      "spreadMm": 0,
+      "validation": "confirmed",
+      "stepId": "chest_sides"
+    },
+    {
+      "id": "chest_side_r",
+      "position": {
+        "x": 0.1599999964237213,
+        "y": 1.2799999713897705,
+        "z": 0
+      },
+      "body": {
+        "x": 0.1599999964237213,
+        "y": 1.2799999713897705,
+        "z": 0
+      },
+      "confidence": 1,
+      "captureMethod": "controller-tip",
+      "controller": "right",
+      "timestamp": "2026-11-05T05:46:28.204Z",
+      "coordinateSpace": "xr-local-floor",
+      "spreadMm": 0,
+      "validation": "confirmed",
+      "stepId": "chest_sides"
+    },
+    {
+      "id": "chest_front",
+      "position": {
+        "x": 0,
+        "y": 1.2799999713897705,
+        "z": -0.11999999731779099
+      },
+      "body": {
+        "x": 0,
+        "y": 1.2799999713897705,
+        "z": 0.11999999731779099
+      },
+      "confidence": 1,
+      "captureMethod": "controller-tip",
+      "controller": "left",
+      "timestamp": "2026-11-05T05:46:38.817Z",
+      "coordinateSpace": "xr-local-floor",
+      "spreadMm": 0,
+      "validation": "confirmed",
+      "stepId": "chest_fb"
+    },
+    {
+      "id": "chest_back",
+      "position": {
+        "x": 0,
+        "y": 1.2799999713897705,
+        "z": 0.11999999731779099
+      },
+      "body": {
+        "x": 0,
+        "y": 1.2799999713897705,
+        "z": -0.11999999731779099
+      },
+      "confidence": 1,
+      "captureMethod": "controller-tip",
+      "controller": "right",
+      "timestamp": "2026-11-05T05:46:38.817Z",
+      "coordinateSpace": "xr-local-floor",
+      "spreadMm": 0,
+      "validation": "confirmed",
+      "stepId": "chest_fb"
+    },
+    {
+      "id": "waist_side_l",
+      "position": {
+        "x": -0.14499999582767487,
+        "y": 1.0800000429153442,
+        "z": 0
+      },
+      "body": {
+        "x": -0.14499999582767487,
+        "y": 1.0800000429153442,
+        "z": 0
+      },
+      "confidence": 1,
+      "captureMethod": "controller-tip",
+      "controller": "left",
+      "timestamp": "2026-11-05T05:46:48.102Z",
+      "coordinateSpace": "xr-local-floor",
+      "spreadMm": 0,
+      "validation": "confirmed",
+      "stepId": "waist_sides"
+    },
+    {
+      "id": "waist_side_r",
+      "position": {
+        "x": 0.14499999582767487,
+        "y": 1.0800000429153442,
+        "z": 0
+      },
+      "body": {
+        "x": 0.14499999582767487,
+        "y": 1.0800000429153442,
+        "z": 0
+      },
+      "confidence": 1,
+      "captureMethod": "controller-tip",
+      "controller": "right",
+      "timestamp": "2026-11-05T05:46:48.102Z",
+      "coordinateSpace": "xr-local-floor",
+      "spreadMm": 0,
+      "validation": "confirmed",
+      "stepId": "waist_sides"
+    },
+    {
+      "id": "waist_front",
+      "position": {
+        "x": 0,
+        "y": 1.0800000429153442,
+        "z": -0.10999999940395355
+      },
+      "body": {
+        "x": 0,
+        "y": 1.0800000429153442,
+        "z": 0.10999999940395355
+      },
+      "confidence": 1,
+      "captureMethod": "controller-tip",
+      "controller": "left",
+      "timestamp": "2026-11-05T05:46:57.297Z",
+      "coordinateSpace": "xr-local-floor",
+      "spreadMm": 0,
+      "validation": "confirmed",
+      "stepId": "waist_fb"
+    },
+    {
+      "id": "waist_back",
+      "position": {
+        "x": 0,
+        "y": 1.0800000429153442,
+        "z": 0.10999999940395355
+      },
+      "body": {
+        "x": 0,
+        "y": 1.0800000429153442,
+        "z": -0.10999999940395355
+      },
+      "confidence": 1,
+      "captureMethod": "controller-tip",
+      "controller": "right",
+      "timestamp": "2026-11-05T05:46:57.297Z",
+      "coordinateSpace": "xr-local-floor",
+      "spreadMm": 0,
+      "validation": "confirmed",
+      "stepId": "waist_fb"
+    },
+    {
+      "id": "hip_side_l",
+      "position": {
+        "x": -0.17499999701976776,
+        "y": 0.9200000166893005,
+        "z": 0
+      },
+      "body": {
+        "x": -0.17499999701976776,
+        "y": 0.9200000166893005,
+        "z": 0
+      },
+      "confidence": 1,
+      "captureMethod": "controller-tip",
+      "controller": "left",
+      "timestamp": "2026-11-05T05:47:06.153Z",
+      "coordinateSpace": "xr-local-floor",
+      "spreadMm": 0,
+      "validation": "confirmed",
+      "stepId": "hip_sides"
+    },
+    {
+      "id": "hip_side_r",
+      "position": {
+        "x": 0.17499999701976776,
+        "y": 0.9200000166893005,
+        "z": 0
+      },
+      "body": {
+        "x": 0.17499999701976776,
+        "y": 0.9200000166893005,
+        "z": 0
+      },
+      "confidence": 1,
+      "captureMethod": "controller-tip",
+      "controller": "right",
+      "timestamp": "2026-11-05T05:47:06.153Z",
+      "coordinateSpace": "xr-local-floor",
+      "spreadMm": 0,
+      "validation": "confirmed",
+      "stepId": "hip_sides"
+    },
+    {
+      "id": "hip_front",
+      "position": {
+        "x": 0,
+        "y": 0.9200000166893005,
+        "z": -0.11999999731779099
+      },
+      "body": {
+        "x": 0,
+        "y": 0.9200000166893005,
+        "z": 0.11999999731779099
+      },
+      "confidence": 1,
+      "captureMethod": "controller-tip",
+      "controller": "left",
+      "timestamp": "2026-11-05T05:47:14.699Z",
+      "coordinateSpace": "xr-local-floor",
+      "spreadMm": 0,
+      "validation": "confirmed",
+      "stepId": "hip_fb"
+    },
+    {
+      "id": "hip_back",
+      "position": {
+        "x": 0,
+        "y": 0.9200000166893005,
+        "z": 0.12999999523162842
+      },
+      "body": {
+        "x": 0,
+        "y": 0.9200000166893005,
+        "z": -0.12999999523162842
+      },
+      "confidence": 1,
+      "captureMethod": "controller-tip",
+      "controller": "right",
+      "timestamp": "2026-11-05T05:47:14.699Z",
+      "coordinateSpace": "xr-local-floor",
+      "spreadMm": 0,
+      "validation": "confirmed",
+      "stepId": "hip_fb"
+    },
+    {
+      "id": "arm_acromion_r",
+      "position": {
+        "x": 0.20000000298023224,
+        "y": 1.4600000381469727,
+        "z": 0
+      },
+      "body": {
+        "x": 0.20000000298023224,
+        "y": 1.4600000381469727,
+        "z": 0
+      },
+      "confidence": 1,
+      "captureMethod": "controller-tip",
+      "controller": "left",
+      "timestamp": "2026-11-05T05:47:23.154Z",
+      "coordinateSpace": "xr-local-floor",
+      "spreadMm": 0,
+      "validation": "confirmed",
+      "stepId": "arm_top"
+    },
+    {
+      "id": "wrist_r",
+      "position": {
+        "x": 0.25049999356269836,
+        "y": 0.8819999694824219,
+        "z": 0
+      },
+      "body": {
+        "x": 0.25049999356269836,
+        "y": 0.8819999694824219,
+        "z": 0
+      },
+      "confidence": 1,
+      "captureMethod": "controller-tip",
+      "controller": "left",
+      "timestamp": "2026-11-05T05:47:30.856Z",
+      "coordinateSpace": "xr-local-floor",
+      "spreadMm": 0,
+      "validation": "confirmed",
+      "stepId": "arm_wrist"
+    }
+  ],
+  "captures": [
+    {
+      "stepId": "cal_tip",
+      "timestamp": "2026-11-05T05:45:26.207Z",
+      "points": [
+        {
+          "landmark": "cal_tip_0",
+          "position": {
+            "x": 0,
+            "y": 1.25,
+            "z": -0.4000000059604645
+          },
+          "spreadMm": 0
+        },
+        {
+          "landmark": "cal_tip_1",
+          "position": {
+            "x": 0,
+            "y": 1.25,
+            "z": -0.4000000059604645
+          },
+          "spreadMm": 0
+        }
+      ],
+      "accepted": true
+    },
+    {
+      "stepId": "cal_tip",
+      "timestamp": "2026-11-05T05:45:35.151Z",
+      "points": [
+        {
+          "landmark": "cal_tip_0",
+          "position": {
+            "x": 0,
+            "y": 1.25,
+            "z": -0.4000000059604645
+          },
+          "spreadMm": 0
+        },
+        {
+          "landmark": "cal_tip_1",
+          "position": {
+            "x": 0,
+            "y": 1.25,
+            "z": -0.4000000059604645
+          },
+          "spreadMm": 0
+        }
+      ],
+      "accepted": true
+    },
+    {
+      "stepId": "cal_tip",
+      "timestamp": "2026-11-05T05:45:43.746Z",
+      "points": [
+        {
+          "landmark": "cal_tip_0",
+          "position": {
+            "x": 0,
+            "y": 1.25,
+            "z": -0.4000000059604645
+          },
+          "spreadMm": 0
+        },
+        {
+          "landmark": "cal_tip_1",
+          "position": {
+            "x": 0,
+            "y": 1.25,
+            "z": -0.4000000059604645
+          },
+          "spreadMm": 0
+        }
+      ],
+      "accepted": true
+    },
+    {
+      "stepId": "cal_floor",
+      "timestamp": "2026-11-05T05:45:51.714Z",
+      "points": [
+        {
+          "landmark": "floor",
+          "position": {
+            "x": 0.25,
+            "y": 0,
+            "z": -0.10000000149011612
+          },
+          "spreadMm": 0
+        }
+      ],
+      "accepted": true
+    },
+    {
+      "stepId": "cal_stance",
+      "timestamp": "2026-11-05T05:45:59.125Z",
+      "points": [
+        {
+          "landmark": "cal_stance_0",
+          "position": {
+            "x": 0,
+            "y": 1.6799999475479126,
+            "z": 0
+          },
+          "spreadMm": 0
+        }
+      ],
+      "accepted": true
+    },
+    {
+      "stepId": "crown",
+      "timestamp": "2026-11-05T05:46:07.151Z",
+      "points": [
+        {
+          "landmark": "top_of_head",
+          "position": {
+            "x": 0,
+            "y": 1.7799999713897705,
+            "z": 0
+          },
+          "spreadMm": 0
+        }
+      ],
+      "accepted": true
+    },
+    {
+      "stepId": "acromions",
+      "timestamp": "2026-11-05T05:46:17.803Z",
+      "points": [
+        {
+          "landmark": "acromion_r",
+          "position": {
+            "x": 0.20000000298023224,
+            "y": 1.4600000381469727,
+            "z": 0
+          },
+          "spreadMm": 0
+        },
+        {
+          "landmark": "acromion_l",
+          "position": {
+            "x": -0.20000000298023224,
+            "y": 1.4600000381469727,
+            "z": 0
+          },
+          "spreadMm": 0
+        }
+      ],
+      "accepted": true
+    },
+    {
+      "stepId": "chest_sides",
+      "timestamp": "2026-11-05T05:46:28.204Z",
+      "points": [
+        {
+          "landmark": "chest_side_l",
+          "position": {
+            "x": -0.1599999964237213,
+            "y": 1.2799999713897705,
+            "z": 0
+          },
+          "spreadMm": 0
+        },
+        {
+          "landmark": "chest_side_r",
+          "position": {
+            "x": 0.1599999964237213,
+            "y": 1.2799999713897705,
+            "z": 0
+          },
+          "spreadMm": 0
+        }
+      ],
+      "accepted": true
+    },
+    {
+      "stepId": "chest_fb",
+      "timestamp": "2026-11-05T05:46:38.817Z",
+      "points": [
+        {
+          "landmark": "chest_front",
+          "position": {
+            "x": 0,
+            "y": 1.2799999713897705,
+            "z": -0.11999999731779099
+          },
+          "spreadMm": 0
+        },
+        {
+          "landmark": "chest_back",
+          "position": {
+            "x": 0,
+            "y": 1.2799999713897705,
+            "z": 0.11999999731779099
+          },
+          "spreadMm": 0
+        }
+      ],
+      "accepted": true
+    },
+    {
+      "stepId": "waist_sides",
+      "timestamp": "2026-11-05T05:46:48.102Z",
+      "points": [
+        {
+          "landmark": "waist_side_l",
+          "position": {
+            "x": -0.14499999582767487,
+            "y": 1.0800000429153442,
+            "z": 0
+          },
+          "spreadMm": 0
+        },
+        {
+          "landmark": "waist_side_r",
+          "position": {
+            "x": 0.14499999582767487,
+            "y": 1.0800000429153442,
+            "z": 0
+          },
+          "spreadMm": 0
+        }
+      ],
+      "accepted": true
+    },
+    {
+      "stepId": "waist_fb",
+      "timestamp": "2026-11-05T05:46:57.297Z",
+      "points": [
+        {
+          "landmark": "waist_front",
+          "position": {
+            "x": 0,
+            "y": 1.0800000429153442,
+            "z": -0.10999999940395355
+          },
+          "spreadMm": 0
+        },
+        {
+          "landmark": "waist_back",
+          "position": {
+            "x": 0,
+            "y": 1.0800000429153442,
+            "z": 0.10999999940395355
+          },
+          "spreadMm": 0
+        }
+      ],
+      "accepted": true
+    },
+    {
+      "stepId": "hip_sides",
+      "timestamp": "2026-11-05T05:47:06.153Z",
+      "points": [
+        {
+          "landmark": "hip_side_l",
+          "position": {
+            "x": -0.17499999701976776,
+            "y": 0.9200000166893005,
+            "z": 0
+          },
+          "spreadMm": 0
+        },
+        {
+          "landmark": "hip_side_r",
+          "position": {
+            "x": 0.17499999701976776,
+            "y": 0.9200000166893005,
+            "z": 0
+          },
+          "spreadMm": 0
+        }
+      ],
+      "accepted": true
+    },
+    {
+      "stepId": "hip_fb",
+      "timestamp": "2026-11-05T05:47:14.699Z",
+      "points": [
+        {
+          "landmark": "hip_front",
+          "position": {
+            "x": 0,
+            "y": 0.9200000166893005,
+            "z": -0.11999999731779099
+          },
+          "spreadMm": 0
+        },
+        {
+          "landmark": "hip_back",
+          "position": {
+            "x": 0,
+            "y": 0.9200000166893005,
+            "z": 0.12999999523162842
+          },
+          "spreadMm": 0
+        }
+      ],
+      "accepted": true
+    },
+    {
+      "stepId": "arm_top",
+      "timestamp": "2026-11-05T05:47:23.154Z",
+      "points": [
+        {
+          "landmark": "arm_acromion_r",
+          "position": {
+            "x": 0.20000000298023224,
+            "y": 1.4600000381469727,
+            "z": 0
+          },
+          "spreadMm": 0
+        }
+      ],
+      "accepted": true
+    },
+    {
+      "stepId": "arm_wrist",
+      "timestamp": "2026-11-05T05:47:30.856Z",
+      "points": [
+        {
+          "landmark": "wrist_r",
+          "position": {
+            "x": 0.25049999356269836,
+            "y": 0.8819999694824219,
+            "z": 0
+          },
+          "spreadMm": 0
+        }
+      ],
+      "accepted": true
+    }
+  ],
+  "bodyModel": {
+    "format": "OBJ",
+    "kind": "parametric-measurement-mannequin",
+    "reference": null,
+    "note": "Generated from measurements; not a photographic body scan."
+  },
+  "avatar": {
+    "reference": null
+  },
+  "validation": {
+    "referenceMeasurements": []
+  },
+  "consent": {
+    "measurementStorage": true,
+    "faceCapture": false,
+    "timestamp": "2026-11-05T05:45:09.364Z"
+  }
+}

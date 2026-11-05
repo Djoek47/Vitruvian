@@ -1,0 +1,112 @@
+{
+  "started": "2026-11-05T05:45:05.701Z",
+  "checks": [
+    {
+      "name": "Enter buttons disabled before consent",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Enter VR enabled after consent",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Immersive session started",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Studio live tip distance = 300 mm (emulated)",
+      "ok": true,
+      "detail": "30.0 cm"
+    },
+    {
+      "name": "Studio capture records a reading",
+      "ok": true,
+      "detail": "300.00 mm"
+    },
+    {
+      "name": "Quick Fit completed in VR",
+      "ok": true,
+      "detail": "{\"screen\":\"results\",\"phase\":\"done\"}"
+    },
+    {
+      "name": "height 1780 mm",
+      "ok": true,
+      "detail": "1780 direct unvalidated"
+    },
+    {
+      "name": "shoulder 400 mm",
+      "ok": true,
+      "detail": "400 direct unvalidated"
+    },
+    {
+      "name": "chest breadth 320 / depth 240",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "arm length 580 mm",
+      "ok": true,
+      "detail": "580.2 direct unvalidated"
+    },
+    {
+      "name": "circumferences derived",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Passport saved",
+      "ok": true,
+      "detail": "15 measurements"
+    },
+    {
+      "name": "Passport flagged simulated",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Passport survives reload (encrypted IndexedDB)",
+      "ok": true,
+      "detail": "{\"versions\":1,\"id\":\"6f4148f3-a3a1-4371-8b2c-593518fae776\",\"n\":15}"
+    },
+    {
+      "name": "export json",
+      "ok": true,
+      "detail": "vitruvian-6f4148f3-passport.json"
+    },
+    {
+      "name": "export csv",
+      "ok": true,
+      "detail": "vitruvian-6f4148f3-measurements.csv"
+    },
+    {
+      "name": "export md",
+      "ok": true,
+      "detail": "vitruvian-6f4148f3-marvelous-designer.csv"
+    },
+    {
+      "name": "export mdtxt",
+      "ok": true,
+      "detail": "vitruvian-6f4148f3-marvelous-designer.txt"
+    },
+    {
+      "name": "export obj",
+      "ok": true,
+      "detail": "vitruvian-6f4148f3-mannequin.obj"
+    },
+    {
+      "name": "export mh",
+      "ok": true,
+      "detail": "vitruvian-6f4148f3-metahuman-targets.json"
+    },
+    {
+      "name": "No page errors",
+      "ok": true,
+      "detail": " (2 sandbox network errors ignored)"
+    }
+  ],
+  "finished": "2026-11-05T05:47:51.511Z",
+  "passed": true
+}
