@@ -3,3 +3,8 @@ dist
 dist-single
 e2e/out
 *.log
+# licensed display font (never commit to the public repo)
+public/fonts/*.woff2
+public/fonts/*.woff
+public/fonts/*.otf
+public/fonts/*.ttf

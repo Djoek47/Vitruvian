@@ -39,6 +39,8 @@ export class BodyTwin {
   readonly group = new THREE.Group();
   private shell: THREE.Mesh;
   private contours: LineSegments2;
+  /** particle constellation on every mesh vertex (holographic "measured points" look) */
+  private points: THREE.Points;
   private holoMat: THREE.ShaderMaterial;
   private skinMat: THREE.MeshStandardMaterial;
   private sig = "";
@@ -53,7 +55,9 @@ export class BodyTwin {
     this.skinMat = new THREE.MeshStandardMaterial({ color: 0xc69c7a, roughness: 0.62, metalness: 0, transparent: true, opacity: 0.96 });
     this.shell = new THREE.Mesh(new THREE.BufferGeometry(), this.holoMat);
     this.contours = fatLines([], GOLD_HEX, 0.0025, 0.55);
-    this.group.add(this.shell, this.contours);
+    this.points = new THREE.Points(new THREE.BufferGeometry(), new THREE.PointsMaterial({ color: 0xfff0c2, size: 0.0065, sizeAttenuation: true, transparent: true, opacity: 0.85, blending: THREE.AdditiveBlending, depthWrite: false, toneMapped: false }));
+    this.points.frustumCulled = false;
+    this.group.add(this.shell, this.contours, this.points);
     this.group.scale.setScalar(0.001); // mannequin is in millimetres
   }
 
@@ -67,6 +71,7 @@ export class BodyTwin {
     }
     this.group.visible = !!this.mesh;
     this.shell.visible = mode !== "lines";
+    this.points.visible = mode !== "skin";
     this.shell.material = mode === "skin" ? this.skinMat : this.holoMat;
     if (skinHex) this.skinMat.color.set(skinHex);
   }
@@ -84,6 +89,7 @@ export class BodyTwin {
     g.computeVertexNormals();
     this.shell.geometry.dispose();
     this.shell.geometry = g;
+    this.points.geometry = g; // shares the vertex buffer
     // contour lines: every ring of the loft (each quad's bottom edge → horizontal ring segments)
     const seg: number[] = [];
     for (const f of mesh.faces) {
@@ -97,5 +103,6 @@ export class BodyTwin {
 
   tick(t: number) {
     this.holoMat.uniforms.uTime.value = t;
+    (this.points.material as THREE.PointsMaterial).opacity = 0.6 + 0.25 * Math.sin(t * 1.618);
   }
 }

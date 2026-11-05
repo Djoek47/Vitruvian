@@ -2,7 +2,7 @@ import * as THREE from "three";
 import type { LineSegments2 } from "three/examples/jsm/lines/LineSegments2.js";
 import { superellipsePerimeter } from "../body/circumference";
 import type { Landmark, Measurement } from "../measurement/types";
-import { AMBER_HEX, EMBER_HEX, GOLD_HEX, SUCCESS_HEX } from "../ui/theme";
+import { AMBER_HEX, EMBER_HEX, GOLD_HEX, PHI, SUCCESS_HEX } from "../ui/theme";
 import { circlePts, fatLines, glowSprite, labelSprite, loopSegments, setLinePositions, updateLabel } from "./fx";
 
 /**
@@ -50,29 +50,38 @@ export class VitruvianHologram {
   }
 
   /** Concentric Stark-style projector rings on the floor. */
+  /**
+   * Projector base on Leonardo's canon: ring radii in φ proportion (R/φ², R/φ, R, R·φ^½),
+   * tick counts on Fibonacci numbers (21 · 34 · 55 · 89), spin speeds in ratio φ.
+   */
   private buildBase() {
-    const mk = (r: number, w: number, o: number, dash = 0) => {
+    const R = 0.95;
+    const ring = (r: number, w: number, o: number, dashes = 0, duty = 0.55) => {
       let pts: number[] = [];
-      if (!dash) pts = loopSegments(circlePts(r, 128, 0.003));
-      else for (let i = 0; i < dash; i++) pts.push(...loopSegments(circlePts(r, 6, 0.003, (i / dash) * Math.PI * 2, (Math.PI * 2) / dash * 0.55), false));
+      if (!dashes) pts = loopSegments(circlePts(r, 144, 0.003));
+      else for (let i = 0; i < dashes; i++) pts.push(...loopSegments(circlePts(r, 6, 0.003, (i / dashes) * Math.PI * 2, ((Math.PI * 2) / dashes) * duty), false));
       const l = fatLines(pts, GOLD_HEX, w, o);
       this.base.add(l);
       return l;
     };
-    mk(0.95, 0.004, 0.35);
-    mk(1.02, 0.01, 0.4, 48).userData.spin = 0.08;
-    mk(1.12, 0.003, 0.25);
-    mk(0.7, 0.006, 0.35, 12).userData.spin = -0.15;
-    // radial ticks
-    const ticks: number[] = [];
-    for (let i = 0; i < 72; i++) {
-      const t = (i / 72) * Math.PI * 2;
-      const r0 = i % 6 === 0 ? 1.13 : 1.16;
-      ticks.push(Math.cos(t) * r0, 0.003, Math.sin(t) * r0, Math.cos(t) * 1.2, 0.003, Math.sin(t) * 1.2);
-    }
-    const tk = fatLines(ticks, GOLD_HEX, 0.004, 0.4);
-    tk.userData.spin = 0.02;
-    this.base.add(tk);
+    const ticks = (r: number, n: number, len: number, w: number, o: number) => {
+      const pts: number[] = [];
+      for (let i = 0; i < n; i++) {
+        const t = (i / n) * Math.PI * 2;
+        pts.push(Math.cos(t) * r, 0.003, Math.sin(t) * r, Math.cos(t) * (r + len), 0.003, Math.sin(t) * (r + len));
+      }
+      const l = fatLines(pts, GOLD_HEX, w, o);
+      this.base.add(l);
+      return l;
+    };
+    ring(R / (PHI * PHI), 0.004, 0.45);
+    ring(R / PHI, 0.007, 0.4, 21).userData.spin = -0.1 * PHI;
+    ring(R, 0.004, 0.4);
+    ring(R * Math.sqrt(PHI), 0.003, 0.25, 89, 0.35).userData.spin = 0.1 / PHI;
+    ticks(R / PHI + 0.03, 34, 0.04, 0.004, 0.35).userData.spin = 0.05;
+    ticks(R + 0.02, 55, 0.05, 0.003, 0.4).userData.spin = -0.05 / PHI;
+    // golden spiral etched on the floor (r = a·φ^(2θ/π))
+    this.base.add(fatLines(loopSegments(goldenSpiral(0.012, R * 0.9, (x, y) => new THREE.Vector3(x, 0.004, y)), false), GOLD_HEX, 0.003, 0.3));
     const g = glowSprite(GOLD_HEX, 1.8, 0.12);
     g.position.y = 0.02;
     this.base.add(g);
@@ -111,12 +120,20 @@ export class VitruvianHologram {
       const [x2, y2] = corners[(i + 1) % 4];
       sq.push(x1, y1, -0.02, x2, y2, -0.02);
     }
-    const navelY = b.H * 0.6;
-    sq.push(...loopSegments(circlePts(navelY, 128, -0.02, 0, Math.PI * 2, "xy", navelY)));
-    // proportion tick marks on the square (Da Vinci's divisions: eighths of height)
+    // Leonardo's canon: navel at H/φ, the circle is centred on it and touches the floor
+    const navelY = b.H / PHI;
+    sq.push(...loopSegments(circlePts(navelY, 160, -0.02, 0, Math.PI * 2, "xy", navelY)));
+    // golden spiral unwinding from the navel out to the circle
+    sq.push(...loopSegments(goldenSpiral(0.01, navelY * 0.98, (x, y) => new THREE.Vector3(x, navelY + y, -0.03)), false));
+    // φ-section marks up both sides of the square: H/φ³, H/φ², H/φ, H(1 − 1/φ³)
+    for (const f of [1 / PHI ** 3, 1 / PHI ** 2, 1 / PHI, 1 - 1 / PHI ** 3]) {
+      const y = s * f;
+      sq.push(-half, y, -0.02, -half + 0.08, y, -0.02, half, y, -0.02, half - 0.08, y, -0.02);
+    }
+    // Leonardo's eighths (head = H/8), finer marks
     for (let i = 1; i < 8; i++) {
       const y = (s * i) / 8;
-      sq.push(-half, y, -0.02, -half + 0.05, y, -0.02, half, y, -0.02, half - 0.05, y, -0.02);
+      sq.push(-half, y, -0.02, -half + 0.035, y, -0.02, half, y, -0.02, half - 0.035, y, -0.02);
     }
     setLinePositions(this.frame, sq);
 
@@ -194,7 +211,7 @@ export class VitruvianHologram {
       for (const e of [d.a, d.c]) pts.push(e.x - perp.x, e.y - perp.y, e.z, e.x + perp.x, e.y + perp.y, e.z);
       const color = m.status === "conflicted" ? EMBER_HEX : focus ? SUCCESS_HEX : GOLD_HEX;
       if (!c) {
-        c = { line: fatLines(pts, color, 0.004, 0.9), label: labelSprite(val, sub, undefined, 0.11) };
+        c = { line: fatLines(pts, color, 0.004, 0.9), label: labelSprite(val, sub, undefined, 0.13) };
         this.group.add(c.line, c.label);
         this.callouts.set(d.id, c);
       } else setLinePositions(c.line, pts);
@@ -285,45 +302,69 @@ function superPts(breadth: number, depth: number, n: number, y: number): THREE.V
 }
 
 /** Stylised contour figure: main pose (arms out, legs together) + Da Vinci's alternate pose as a ghost. */
+/** Smooth a control polyline (centripetal Catmull-Rom) into fine segments — Da Vinci contour, not a stick figure. */
+function smooth(pts: THREE.Vector3[], n = 24): THREE.Vector3[] {
+  return pts.length < 3 ? pts : new THREE.CatmullRomCurve3(pts, false, "centripetal").getPoints(n);
+}
+
+/** Golden (logarithmic) spiral r = r0·φ^(2θ/π) — one quarter turn grows by φ, like the Fibonacci squares. */
+export function goldenSpiral(r0: number, rMax: number, map: (x: number, y: number) => THREE.Vector3): THREE.Vector3[] {
+  const pts: THREE.Vector3[] = [];
+  for (let th = 0; ; th += 0.06) {
+    const r = r0 * Math.pow(PHI, (2 * th) / Math.PI);
+    if (r > rMax) break;
+    pts.push(map(r * Math.cos(th), r * Math.sin(th)));
+  }
+  return pts;
+}
+
+/** Contour figure: main pose (arms out, legs together) + Leonardo's second pose as a ghost. */
 function figureSegments(b: Body): { main: number[]; alt: number[] } {
   const V = (x: number, y: number, z = 0) => new THREE.Vector3(x, y, z);
   const main: number[] = [];
   const alt: number[] = [];
-  const seg = (arr: number[], ...pts: THREE.Vector3[]) => arr.push(...loopSegments(pts, false));
+  const curve = (arr: number[], ...pts: THREE.Vector3[]) => arr.push(...loopSegments(smooth(pts), false));
   const H = b.H;
-  // head
-  const headR = H * 0.062;
-  const headC = H - headR;
-  main.push(...loopSegments(circlePts(headR, 40, 0, 0, Math.PI * 2, "xy", headC)));
+  // head: Leonardo's H/8, slightly taller than wide (ratio √φ)
+  const headH = H / 8;
+  const headW = headH / Math.sqrt(PHI);
+  const headC = H - headH / 2;
+  const head: THREE.Vector3[] = [];
+  for (let i = 0; i <= 48; i++) {
+    const t = (i / 48) * Math.PI * 2;
+    head.push(V((headW / 2) * Math.cos(t), headC + (headH / 2) * Math.sin(t)));
+  }
+  main.push(...loopSegments(head, false));
   const sw = b.shoulderW / 2;
   const cw = b.rings.chest.b / 2;
   const ww = b.rings.waist.b / 2;
   const hw = b.rings.hip.b / 2;
-  // neck + torso contour
+  const nw = b.rings.neck.b / 2;
   for (const s of [-1, 1]) {
-    seg(main, V(s * H * 0.03, headC - headR * 0.95), V(s * b.rings.neck.b / 2, b.neckY), V(s * sw * 0.55, b.shoulderY + 0.02), V(s * sw, b.shoulderY));
-    seg(main, V(s * cw * 1.02, b.shoulderY - 0.06), V(s * cw, b.chestY), V(s * ww, b.waistY), V(s * hw, b.hipY), V(s * hw * 0.92, b.crotchY));
+    // neck into the trapezius and shoulder cap
+    curve(main, V(s * nw * 0.8, headC - headH * 0.42), V(s * nw, b.neckY), V(s * (nw + (sw - nw) * 0.5), b.shoulderY + 0.035), V(s * sw, b.shoulderY + 0.01), V(s * (sw + 0.02), b.shoulderY - 0.025));
+    // side of the torso: armpit → chest → waist → hip → upper thigh
+    curve(main, V(s * cw * 1.03, b.shoulderY - 0.07), V(s * cw, b.chestY), V(s * (cw + ww) / 2 * 0.98, (b.chestY + b.waistY) / 2), V(s * ww, b.waistY), V(s * hw, b.hipY), V(s * hw * 0.93, b.crotchY));
+    // outer and inner leg
+    curve(main, V(s * hw * 0.93, b.crotchY), V(s * hw * 0.8, (b.crotchY + b.kneeY) / 2), V(s * hw * 0.6, b.kneeY), V(s * hw * 0.62, b.kneeY * 0.6), V(s * hw * 0.42, H * 0.045), V(s * hw * 0.58, 0.005));
+    curve(main, V(s * 0.012, b.crotchY - 0.015), V(s * hw * 0.24, (b.crotchY + b.kneeY) / 2), V(s * hw * 0.22, b.kneeY), V(s * hw * 0.24, b.kneeY * 0.6), V(s * hw * 0.2, H * 0.045), V(s * hw * 0.12, 0.005));
   }
-  // legs together (main) — feet slightly apart
-  for (const s of [-1, 1]) {
-    seg(main, V(s * hw * 0.92, b.crotchY), V(s * hw * 0.62, b.kneeY), V(s * hw * 0.42, H * 0.04), V(s * hw * 0.55, 0));
-    seg(main, V(s * 0.012, b.crotchY - 0.02), V(s * hw * 0.2, b.kneeY), V(s * hw * 0.18, H * 0.04), V(s * hw * 0.1, 0));
-  }
-  // arms horizontal (main): span ≈ height
+  // arms horizontal: in the canon the span equals the height
   const reach = H / 2;
   for (const s of [-1, 1]) {
-    seg(main, V(s * sw, b.shoulderY + 0.035), V(s * (sw + b.armL * 0.5), b.shoulderY + 0.03), V(s * (sw + b.armL), b.shoulderY + 0.025), V(s * reach, b.shoulderY + 0.02));
-    seg(main, V(s * cw * 1.02, b.shoulderY - 0.06), V(s * (sw + b.armL * 0.5), b.shoulderY - 0.035), V(s * (sw + b.armL), b.shoulderY - 0.02), V(s * reach, b.shoulderY));
+    curve(main, V(s * (sw + 0.02), b.shoulderY - 0.025), V(s * (sw + b.armL * 0.45), b.shoulderY + 0.01), V(s * (sw + b.armL), b.shoulderY + 0.012), V(s * reach, b.shoulderY + 0.005));
+    curve(main, V(s * cw * 1.03, b.shoulderY - 0.07), V(s * (sw + b.armL * 0.45), b.shoulderY - 0.045), V(s * (sw + b.armL), b.shoulderY - 0.025), V(s * reach, b.shoulderY - 0.012));
   }
-  // ghost pose: arms raised to touch the circle, legs spread
-  const navelY = H * 0.6;
+  // second pose (ghost): hands rise to the circle, feet spread on it
+  const navelY = H / PHI;
   const R = navelY;
-  const raise = (60 * Math.PI) / 180;
   for (const s of [-1, 1]) {
-    const tip = V(s * R * Math.cos(raise * 0.62), navelY + R * Math.sin(raise * 0.62));
-    seg(alt, V(s * sw, b.shoulderY), V((s * sw + tip.x) / 2, (b.shoulderY + tip.y) / 2 + 0.02), tip);
-    const foot = V(s * R * Math.sin((22 * Math.PI) / 180), navelY - R * Math.cos((22 * Math.PI) / 180));
-    seg(alt, V(s * hw * 0.8, b.crotchY), V((s * hw * 0.8 + foot.x) / 2 + s * 0.03, (b.crotchY + foot.y) / 2), foot);
+    const a = Math.atan2(H - navelY, H / 2) * 0.82;
+    const tip = V(s * R * Math.cos(a), navelY + R * Math.sin(a));
+    curve(alt, V(s * sw, b.shoulderY), V(s * (sw + (Math.abs(tip.x) - sw) * 0.5), (b.shoulderY + tip.y) / 2 + 0.025), tip);
+    const fa = Math.PI / 2 - Math.PI / (PHI * 8);
+    const foot = V(s * R * Math.cos(fa), navelY - R * Math.sin(fa));
+    curve(alt, V(s * hw * 0.82, b.crotchY), V((s * hw * 0.82 + foot.x) / 2 + s * 0.03, (b.crotchY + foot.y) / 2), foot);
   }
   return { main, alt };
 }

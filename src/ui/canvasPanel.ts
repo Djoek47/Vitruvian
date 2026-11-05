@@ -174,8 +174,9 @@ export class CanvasPanel {
       c.lineWidth = 4;
       c.stroke();
       c.shadowBlur = 0;
-    } else if (v !== "primary" && v !== "ghost") {
-      c.strokeStyle = "rgba(255,198,26,0.18)";
+    } else if (v !== "primary") {
+      // ghost buttons keep a visible outline so they read as buttons at VR distance (UI review #4)
+      c.strokeStyle = v === "ghost" ? "rgba(255,246,230,0.22)" : "rgba(255,198,26,0.22)";
       c.lineWidth = 2;
       c.stroke();
     }

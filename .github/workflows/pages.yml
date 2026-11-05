@@ -20,6 +20,11 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
+      - name: Fetch licensed display font (optional)
+        env:
+          PLANET_KOSMOS_URL: ${{ secrets.PLANET_KOSMOS_URL }}
+        run: |
+          if [ -n "$PLANET_KOSMOS_URL" ]; then curl -fsSL "$PLANET_KOSMOS_URL" -o public/fonts/planet-kosmos.woff2 && echo "Planet Kosmos installed"; else echo "PLANET_KOSMOS_URL not set: using Chakra Petch fallback"; fi
       - run: npm test
       - run: npm run build
       - uses: actions/upload-pages-artifact@v3

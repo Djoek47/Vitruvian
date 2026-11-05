@@ -1,0 +1,8 @@
+/* Planet Kosmos — the Faberland wordmark's face. Files are optional (see public/fonts/README.md). */
+@font-face {
+  font-family: "Planet Kosmos";
+  src: url("/fonts/planet-kosmos.woff2") format("woff2"), url("/fonts/planet-kosmos.otf") format("opentype");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}

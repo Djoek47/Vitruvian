@@ -28,7 +28,7 @@ export type Settings = {
   relaxed: boolean;
   haptics: boolean;
   twin: TwinMode;
-  panelDistance: "near" | "normal" | "far";
+  panelDistance: "near" | "normal" | "far" | "large";
   showAxes: boolean;
   controllerHints: boolean;
   tutorialDone: boolean;
@@ -82,7 +82,8 @@ const TUTORIAL = [
 export class VitruvianApp {
   screen: Screen = "boot";
   session: CaptureSession | null = null;
-  readonly panel = new CanvasPanel(W, H, 1.3);
+  /** 1.5 m wide at 1.35 m ≈ 1110 dmm (design spec: 1200 dmm primary panel); "Large" scales it ×1.25. */
+  readonly panel = new CanvasPanel(W, H, 1.5);
   settings: Settings = { ...DEFAULT_SETTINGS };
   subject: Subject = {};
   appearance: BodyPassport["appearance"] = undefined;
@@ -758,8 +759,8 @@ export class VitruvianApp {
     row(430, "Stability", "Allowed jitter while holding (relaxed for shaky hands)", ["Standard 2 mm", "Relaxed 3 mm"], st.relaxed ? 1 : 0, (i) => this.applySettings({ relaxed: i === 1 }));
     const twins: TwinMode[] = ["lines", "hologram", "skin"];
     row(530, "Your twin", "How your measured body is shown", ["Gold lines", "Hologram", "Skin tone"], twins.indexOf(st.twin), (i) => this.applySettings({ twin: twins[i] }));
-    const dists: Settings["panelDistance"][] = ["near", "normal", "far"];
-    row(630, "Panel distance", "Re-centres the panels", ["Near", "Normal", "Far"], dists.indexOf(st.panelDistance), (i) => this.applySettings({ panelDistance: dists[i] }));
+    const dists: Settings["panelDistance"][] = ["near", "normal", "far", "large"];
+    row(630, "Panel", "Distance, or Large for bigger text", ["Near", "Normal", "Far", "Large"], dists.indexOf(st.panelDistance), (i) => this.applySettings({ panelDistance: dists[i] }));
     row(730, "Haptics · XYZ · hints", "Vibration · axis readout · button hints above the controllers", ["Haptics on", "Haptics off", st.showAxes ? "XYZ on" : "XYZ off", st.controllerHints ? "Hints on" : "Hints off"], st.haptics ? 0 : 1, (i) => (i === 2 ? this.applySettings({ showAxes: !st.showAxes }) : i === 3 ? this.applySettings({ controllerHints: !st.controllerHints }) : this.applySettings({ haptics: i === 0 })));
     g.button("setdone", { x: 64, y: 900, w: 300, h: 84 }, "Done", () => (this.screen = "home"), { variant: "primary" });
     g.button("tut", { x: 384, y: 900, w: 340, h: 84 }, "Replay tutorial", () => {
@@ -885,7 +886,7 @@ export class VitruvianApp {
     for (const id of ids.slice(0, 12)) {
       const m = s.measurements[id];
       const def = MEASUREMENT_BY_ID[id];
-      g.text(def.label.replace(/\s*\(.*\)/, ""), 1010, ry, { size: 25, color: m ? T.text : T.text3, maxW: 320 });
+      g.text(def.label.replace(/\s*\(.*\)/, ""), 1010, ry, { size: 25, color: m ? T.text : T.text2, maxW: 320 });
       if (m) {
         g.badge(m.method, m.status === "conflicted", 1360, ry - 9);
         g.text(formatMm(m.value, this.units), 1540, ry, { size: 27, weight: 600, color: T.gold, align: "right" });
@@ -976,7 +977,7 @@ export class VitruvianApp {
         g.ctx.fillStyle = T.gold;
         g.ctx.fillRect(56, y + 8, 5, 40);
       }
-      g.text(def.label, 80, y + 39, { size: 27, color: m ? T.text : T.text3, maxW: 470 });
+      g.text(def.label, 80, y + 39, { size: 27, color: m ? T.text : T.text2, maxW: 470 });
       if (m) {
         g.badge(m.method, m.status === "conflicted", 590, y + 29);
         g.text(formatMm(m.value, this.units), 820, y + 39, { size: 29, weight: 600, color: sel ? T.gold : T.text, align: "right" });

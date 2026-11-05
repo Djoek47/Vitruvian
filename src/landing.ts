@@ -37,6 +37,7 @@ export function initLanding(d: Deps) {
   const root = $("#landing");
   root.innerHTML = `
   <header class="hero">
+    ${canonSvg()}
     <img class="star" src="${import.meta.env.BASE_URL}brand/faberland-star.png" alt="Faberland" />
     <div>
       <img class="wordmark" src="${import.meta.env.BASE_URL}brand/faberland-wordmark.png" alt="faberland" />
@@ -290,7 +291,8 @@ export function initLanding(d: Deps) {
       return;
     }
     support = { ar: await xr.isSessionSupported("immersive-ar").catch(() => false), vr: await xr.isSessionSupported("immersive-vr").catch(() => false) };
-    $("#xr-support").innerHTML = `${support.vr ? "✅" : "❌"} VR &nbsp; ${support.ar ? "✅" : "❌"} Mixed Reality &nbsp;·&nbsp; <span class="dim">${esc(navigator.userAgent.slice(0, 120))}</span>`;
+    const pill = (ok: boolean, l: string) => `<span class="pill ${ok ? "ok" : "no"}">${ok ? "●" : "○"} ${l}</span>`;
+    $("#xr-support").innerHTML = `${pill(support.vr, "VR")} ${pill(support.ar, "Mixed Reality")} &nbsp;<span class="dim">${esc(navigator.userAgent.slice(0, 120))}</span>`;
     syncButtons();
   })();
 
@@ -466,6 +468,28 @@ export function initLanding(d: Deps) {
 }
 
 declare const __BUILD__: string;
+
+/** Leonardo's canon as line art: square (side H), circle centred at the navel (H/φ), golden spiral from the navel. */
+function canonSvg(): string {
+  const PHI = (1 + Math.sqrt(5)) / 2;
+  const H = 200;
+  const ox = 30;
+  const oy = 230;
+  const navel = H / PHI;
+  let d = "";
+  for (let th = 0, first = true; ; th += 0.05) {
+    const r = 1.2 * Math.pow(PHI, (2 * th) / Math.PI);
+    if (r > navel * 0.98) break;
+    d += `${first ? "M" : "L"}${(ox + H / 2 + r * Math.cos(th)).toFixed(1)},${(oy - navel - r * Math.sin(th)).toFixed(1)}`;
+    first = false;
+  }
+  const ticks = [1 / PHI ** 3, 1 / PHI ** 2, 1 / PHI, 1 - 1 / PHI ** 3].map((f) => `<line x1="${ox}" x2="${ox + 9}" y1="${oy - H * f}" y2="${oy - H * f}"/><line x1="${ox + H - 9}" x2="${ox + H}" y1="${oy - H * f}" y2="${oy - H * f}"/>`).join("");
+  return `<svg class="canon" viewBox="0 0 260 260" aria-hidden="true" fill="none" stroke="#FFC61A" stroke-width="0.8">
+    <rect x="${ox}" y="${oy - H}" width="${H}" height="${H}" stroke-opacity="0.55"/>
+    <circle cx="${ox + H / 2}" cy="${oy - navel}" r="${navel}" stroke-opacity="0.45"/>
+    <path d="${d}" stroke-opacity="0.6"/>${ticks}
+    <circle cx="${ox + H / 2}" cy="${oy - navel}" r="2.5" fill="#FFC61A" stroke="none"/></svg>`;
+}
 
 function toneHtml(t: SkinTone): string {
   return `<div class="tone"><span class="swatch" style="background:${t.hex}"></span><div><b>${t.hex}</b> · L*a*b* ${t.lab.map((v) => v.toFixed(1)).join(" / ")} · ITA° ${t.itaDeg.toFixed(1)} (${t.itaCategory})<br/>

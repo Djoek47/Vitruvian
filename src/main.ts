@@ -8,6 +8,7 @@ import "@fontsource/inter/400.css";
 import "@fontsource/inter/500.css";
 import "@fontsource/inter/600.css";
 import "@fontsource/inter/700.css";
+import "./ui/fonts.css";
 import * as THREE from "three";
 import { XRControllerModelFactory } from "three/examples/jsm/webxr/XRControllerModelFactory.js";
 import { VitruvianApp } from "./app/app";
@@ -197,11 +198,13 @@ function place(head: THREE.Vector3, quat: THREE.Quaternion, floorY = 0) {
   fwd.normalize();
   const right = new THREE.Vector3().crossVectors(fwd, new THREE.Vector3(0, 1, 0)).normalize();
   const yaw = Math.atan2(-fwd.x, -fwd.z);
-  const dist = { near: 1.1, normal: 1.35, far: 1.6 }[app.settings.panelDistance];
-  app.panel.mesh.position.copy(head).addScaledVector(fwd, dist).addScaledVector(right, -0.42 * (dist / 1.35));
+  const dist = { near: 1.1, normal: 1.35, far: 1.6, large: 1.35 }[app.settings.panelDistance];
+  const k = app.settings.panelDistance === "large" ? 1.25 : 1;
+  app.panel.mesh.scale.setScalar(k);
+  app.panel.mesh.position.copy(head).addScaledVector(fwd, dist).addScaledVector(right, -0.5 * k * (dist / 1.35));
   app.panel.mesh.position.y = head.y - 0.12;
   app.panel.mesh.lookAt(head.x, app.panel.mesh.position.y, head.z);
-  hologram.group.position.copy(head).addScaledVector(fwd, 2.4).addScaledVector(right, 1.0);
+  hologram.group.position.copy(head).addScaledVector(fwd, 2.4).addScaledVector(right, 1.0 + 0.15 * (k - 1) * 4);
   hologram.group.position.y = floorY;
   hologram.group.userData.baseYaw = yaw - 0.35;
   placed = true;
@@ -424,5 +427,10 @@ if (host.startProfile) app.startProfile(host.startProfile);
 
 // Hook for the e2e test
 (window as unknown as Record<string, unknown>).__vitruvian = { app, store, xrDevice, twin, avatar };
+import { detectDisplayFont } from "./ui/theme";
+detectDisplayFont().then((k) => {
+  document.documentElement.classList.toggle("kosmos", k);
+  app.panel.invalidate();
+});
 for (const f of ["600 40px 'Chakra Petch'", "italic 700 40px 'Chakra Petch'", "500 40px Inter", "600 40px Inter", "700 40px Inter"]) document.fonts?.load(f).then(() => app.panel.invalidate());
 document.fonts?.ready.then(() => app.panel.invalidate());
