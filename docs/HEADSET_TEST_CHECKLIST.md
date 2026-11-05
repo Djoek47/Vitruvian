@@ -8,6 +8,9 @@ Record the answers in `VITRUVIAN_CYCLE_1_ACCEPTANCE_REPORT.md`. Screenshot in th
 - [ ] Tick consent ▸ Enter Mixed Reality: passthrough + gold Vitruvian hologram + panel appear
 - [ ] (APK path) app installs and launches from the library. See QUEST_APK.md
 
+- [ ] First entry shows the boot sequence, then the 4-page tutorial (A = next, B = back, Skip). Second entry goes straight to Home
+- [ ] Exit asks for confirmation ("Leave Vitruvian?") and returns to the page with your passport
+
 ## B. Tracking (Test 03)
 - [ ] Status pills **L R HMD** are green
 - [ ] Move each controller: tip reticle follows, no lag
@@ -21,6 +24,9 @@ Record the answers in `VITRUVIAN_CYCLE_1_ACCEPTANCE_REPORT.md`. Screenshot in th
 - [ ] cm/mm toggle works (Menu ▸ Units)
 
 ## D. Capture & persistence (Test 05)
+- [ ] Order is Ground (gold ring appears on the floor) → Head → Instrument → body
+- [ ] Each step shows STAND / HOLD / WHY. The beam chip shows the distance and X / Y / Z
+- [ ] After a capture, X (+ Sample) averages a second placement: "2 samples averaged", and the uncertainty shrinks in the Editor
 - [ ] Quick Fit: each step only captures when steady. Moving during the hold resets it
 - [ ] Review card ▸ Retake works. Accept advances
 - [ ] Body Editor: select a value ▸ +1/−1 mm (becomes MANUAL), Revert, Lock, Re-measure, Delete

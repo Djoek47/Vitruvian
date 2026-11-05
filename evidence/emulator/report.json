@@ -1,13 +1,8 @@
 {
-  "started": "2026-11-05T05:45:05.701Z",
+  "started": "2026-11-05T06:59:57.907Z",
   "checks": [
     {
       "name": "Enter buttons disabled before consent",
-      "ok": true,
-      "detail": ""
-    },
-    {
-      "name": "Enter VR enabled after consent",
       "ok": true,
       "detail": ""
     },
@@ -17,9 +12,24 @@
       "detail": ""
     },
     {
+      "name": "Boot sequence then tutorial on first entry",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Tutorial completes to Home and is remembered",
+      "ok": true,
+      "detail": ""
+    },
+    {
       "name": "Studio live tip distance = 300 mm (emulated)",
       "ok": true,
-      "detail": "30.0 cm"
+      "detail": "30.0 cm · X 30.0  Y 0.0  Z 0.0 CM"
+    },
+    {
+      "name": "XYZ axis readout present",
+      "ok": true,
+      "detail": "X 30.0  Y 0.0  Z 0.0 CM"
     },
     {
       "name": "Studio capture records a reading",
@@ -27,79 +37,134 @@
       "detail": "300.00 mm"
     },
     {
-      "name": "Quick Fit completed in VR",
+      "name": "Step order: ground → head → instrument first",
       "ok": true,
-      "detail": "{\"screen\":\"results\",\"phase\":\"done\"}"
+      "detail": "cal_floor → cal_stance → cal_tip → cal_tip"
     },
     {
-      "name": "height 1780 mm",
+      "name": "Simple mode completed in VR (10 body points)",
       "ok": true,
-      "detail": "1780 direct unvalidated"
+      "detail": "{\"screen\":\"results\",\"phase\":\"done\"} · cal_floor,cal_stance,cal_tip,cal_tip,cal_tip,crown,acromions,arm_wrist,chest_sides,waist_sides,hip_sides"
     },
     {
-      "name": "shoulder 400 mm",
+      "name": "height 1780 mm (floor re-projected after tip calibration)",
       "ok": true,
-      "detail": "400 direct unvalidated"
+      "detail": "1780 direct"
     },
     {
-      "name": "chest breadth 320 / depth 240",
+      "name": "shoulder 400 / chest breadth 320 / arm 580",
+      "ok": true,
+      "detail": "{\"s\":[400,\"direct\"],\"c\":[320,\"direct\"],\"a\":[580.2,\"derived\"]}"
+    },
+    {
+      "name": "Simple-mode girths are labelled ESTIMATED (no depth points)",
       "ok": true,
       "detail": ""
     },
     {
-      "name": "arm length 580 mm",
+      "name": "Controller hint card spec available (Figma art)",
       "ok": true,
-      "detail": "580.2 direct unvalidated"
+      "detail": "null"
     },
     {
-      "name": "circumferences derived",
+      "name": "BMI computed from entered weight + measured height",
+      "ok": true,
+      "detail": "24.62"
+    },
+    {
+      "name": "Twin mesh built from measurements",
       "ok": true,
       "detail": ""
     },
     {
-      "name": "Passport saved",
+      "name": "Passport saved (schema 1.1, simple mode, simulated flag)",
       "ok": true,
-      "detail": "15 measurements"
-    },
-    {
-      "name": "Passport flagged simulated",
-      "ok": true,
-      "detail": ""
-    },
-    {
-      "name": "Passport survives reload (encrypted IndexedDB)",
-      "ok": true,
-      "detail": "{\"versions\":1,\"id\":\"6f4148f3-a3a1-4371-8b2c-593518fae776\",\"n\":15}"
+      "detail": "14"
     },
     {
       "name": "export json",
       "ok": true,
-      "detail": "vitruvian-6f4148f3-passport.json"
+      "detail": "vitruvian-11b45b6d-passport.json"
     },
     {
       "name": "export csv",
       "ok": true,
-      "detail": "vitruvian-6f4148f3-measurements.csv"
+      "detail": "vitruvian-11b45b6d-measurements.csv"
     },
     {
       "name": "export md",
       "ok": true,
-      "detail": "vitruvian-6f4148f3-marvelous-designer.csv"
+      "detail": "vitruvian-11b45b6d-marvelous-designer.csv"
     },
     {
       "name": "export mdtxt",
       "ok": true,
-      "detail": "vitruvian-6f4148f3-marvelous-designer.txt"
+      "detail": "vitruvian-11b45b6d-marvelous-designer.txt"
     },
     {
       "name": "export obj",
       "ok": true,
-      "detail": "vitruvian-6f4148f3-mannequin.obj"
+      "detail": "vitruvian-11b45b6d-mannequin.obj"
     },
     {
       "name": "export mh",
       "ok": true,
-      "detail": "vitruvian-6f4148f3-metahuman-targets.json"
+      "detail": "vitruvian-11b45b6d-metahuman-targets.json"
+    },
+    {
+      "name": "export ue",
+      "ok": true,
+      "detail": "vitruvian-11b45b6d-unreal.json"
+    },
+    {
+      "name": "export uecsv",
+      "ok": true,
+      "detail": "vitruvian-11b45b6d-unreal-datatable.csv"
+    },
+    {
+      "name": "Multiple snapshots saved",
+      "ok": true,
+      "detail": "5"
+    },
+    {
+      "name": "Historical snapshot unchanged after new saves (immutable)",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Evolution overview shows sessions",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Change report compares two snapshots",
+      "ok": true,
+      "detail": "One of the snapshots is SIMULATED data — not a real comparison. | "
+    },
+    {
+      "name": "Transformation video rendered locally",
+      "ok": true,
+      "detail": "vitruvian-transformation.mp4 42 kB"
+    },
+    {
+      "name": "Filmstrip exported",
+      "ok": true,
+      "detail": "267 kB"
+    },
+    {
+      "name": "Wardrobe item assessed with garment-specific data",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Daily check-in saved",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Snapshots, wardrobe and check-ins survive reload (encrypted IndexedDB)",
+      "ok": true,
+      "detail": "{\"snaps\":5,\"wardrobe\":1,\"checkins\":1}"
     },
     {
       "name": "No page errors",
@@ -107,6 +172,6 @@
       "detail": " (2 sandbox network errors ignored)"
     }
   ],
-  "finished": "2026-11-05T05:47:51.511Z",
+  "finished": "2026-11-05T07:04:52.581Z",
   "passed": true
 }

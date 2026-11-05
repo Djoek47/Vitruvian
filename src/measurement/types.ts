@@ -63,4 +63,6 @@ export type Calibration = {
   timestamp: string | null;
 };
 
-export type ProfileKind = "quick" | "precision";
+export type ProfileKind = "simple" | "intermediate" | "ultra";
+/** Pre-1.1 profile ids, accepted on import. */
+export const LEGACY_PROFILE: Record<string, ProfileKind> = { quick: "simple", precision: "intermediate" };

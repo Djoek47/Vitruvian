@@ -6,6 +6,7 @@ import { changeReport, compareSnapshots, proportions, series, trend, type Snapsh
 import { assessGarment, questions, recommendSizes, STATUS_LABEL, CATEGORY_FIELDS, type FitAssessment, type Garment, type GarmentCategory, type GarmentMeasureId, type WardrobeItem, type FitIntent } from "../intelligence/wardrobe";
 import { bodyMesh, hypotheticalPassport, makeSequence, type SequenceKey } from "../intelligence/interpolate";
 import { EvolutionViewer, type ViewDir, type ViewStyle } from "./viewer";
+import { PROFILE_INFO } from "../measurement/procedures";
 
 type Deps = { store: typeof Store; app: VitruvianApp };
 type CheckIn = { id: string; date: string; weightKg?: number; tape?: Record<string, number>; workout?: { category: string; minutes: number }; notes?: string; readiness?: { hoursSinceMeal?: number; sleepH?: number; hydrated?: boolean }; useAsCurrentWeight?: boolean };
@@ -43,7 +44,7 @@ export function initEvolution(d: Deps) {
   let schedule: Schedule = { kind: "monthly", everyDays: 30 };
   let viewer: EvolutionViewer | null = null;
   let studioViewer: EvolutionViewer | null = null;
-  const st = { from: "", to: "", measure: "waist_circumference", range: "all" as "week" | "month" | "quarter" | "year" | "all" | "custom", cFrom: "", cTo: "", wardFilter: "all" };
+  const st = { from: "", to: "", pickedFrom: false, pickedTo: false, measure: "waist_circumference", range: "all" as "week" | "month" | "quarter" | "year" | "all" | "custom", cFrom: "", cTo: "", wardFilter: "all" };
 
   const evo = $("#evolution");
   evo.innerHTML = `
@@ -71,7 +72,7 @@ export function initEvolution(d: Deps) {
   const wardrobe = $("#wardrobe");
   const checkin = $("#checkin");
 
-  const snapLabel = (s: Snapshot) => `${day(s.passport.updatedAt)} · ${s.passport.profile === "precision" ? "full scan" : "quick"} · #${s.snapshotId}${s.passport.hardware.simulated ? " · SIMULATED" : ""}`;
+    const snapLabel = (s: Snapshot) => `${day(s.passport.updatedAt)} · ${PROFILE_INFO[s.passport.profile]?.title ?? s.passport.profile} · #${s.snapshotId}${s.passport.hardware.simulated ? " · SIMULATED" : ""}`;
   const latest = () => snaps.at(-1) ?? null;
   const previous = () => (snaps.length > 1 ? snaps.at(-2)! : null);
   const byId = (id: string) => snaps.find((s) => String(s.snapshotId) === id) ?? null;
@@ -82,8 +83,9 @@ export function initEvolution(d: Deps) {
     items = await d.store.list<WardrobeItem>("wardrobe").catch(() => []);
     programs = await d.store.list<Program>("programs").catch(() => []);
     schedule = (await d.store.getKv<Schedule>("schedule").catch(() => undefined)) ?? schedule;
-    if (!st.to || !byId(st.to)) st.to = latest() ? String(latest()!.snapshotId) : "";
-    if (!st.from || !byId(st.from)) st.from = previous() ? String(previous()!.snapshotId) : st.to;
+    // Follow new sessions (latest vs previous) unless the user picked dates explicitly.
+    if (!st.pickedTo || !byId(st.to)) st.to = latest() ? String(latest()!.snapshotId) : "";
+    if (!st.pickedFrom || !byId(st.from)) st.from = previous() ? String(previous()!.snapshotId) : st.to;
     renderAll();
   }
 
@@ -126,8 +128,8 @@ export function initEvolution(d: Deps) {
     t.innerHTML = opts;
     f.value = st.from;
     t.value = st.to;
-    f.onchange = () => ((st.from = f.value), renderMap(), renderReport());
-    t.onchange = () => ((st.to = t.value), renderMap(), renderReport());
+    f.onchange = () => ((st.from = f.value), (st.pickedFrom = true), renderMap(), renderReport());
+    t.onchange = () => ((st.to = t.value), (st.pickedTo = true), renderMap(), renderReport());
     const v = $<HTMLSelectElement>("#evo-view");
     v.onchange = () => viewer?.setView(v.value as ViewDir);
     const m = $<HTMLSelectElement>("#evo-measure");

@@ -12,7 +12,7 @@
     "units": { "const": "mm" },
     "createdAt": { "type": "string", "format": "date-time" },
     "updatedAt": { "type": "string", "format": "date-time" },
-    "profile": { "enum": ["quick", "precision"] },
+    "profile": { "enum": ["simple", "intermediate", "ultra", "quick", "precision"], "description": "simple (10 points) | intermediate (~50) | ultra (capped at 120 samples). quick/precision = pre-1.1 ids, migrated on import" },
     "hardware": {
       "type": "object",
       "required": ["device", "tracking", "simulated"],

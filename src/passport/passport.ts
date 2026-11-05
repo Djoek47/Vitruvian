@@ -1,6 +1,6 @@
 import { MEASUREMENTS, MEASUREMENT_BY_ID } from "../measurement/registry";
 import type { CaptureRecord } from "../measurement/session";
-import type { Calibration, Landmark, Measurement, ProfileKind } from "../measurement/types";
+import { LEGACY_PROFILE, type Calibration, type Landmark, type Measurement, type ProfileKind } from "../measurement/types";
 import type { Composition, Sex } from "../body/composition";
 import type { SkinTone } from "../appearance/skinTone";
 import type { ShoeSystem } from "../body/shoe";
@@ -132,7 +132,7 @@ export function validatePassport(p: unknown): { ok: boolean; errors: string[] } 
   if (!SUPPORTED_SCHEMAS.includes(o.schemaVersion as string)) e.push(`schemaVersion must be one of ${SUPPORTED_SCHEMAS.join(", ")}`);
   for (const k of ["profileId", "createdAt", "updatedAt", "displayName"]) if (typeof o[k] !== "string") e.push(`${k} must be a string`);
   if (o.units !== "mm") e.push('units must be "mm"');
-  if (!["quick", "precision"].includes(o.profile as string)) e.push("profile must be quick|precision");
+  if (!["simple", "intermediate", "ultra", "quick", "precision"].includes(o.profile as string)) e.push("profile must be simple|intermediate|ultra (legacy quick|precision accepted)");
   if (!Array.isArray(o.measurements)) e.push("measurements must be an array");
   else
     (o.measurements as Measurement[]).forEach((m, i) => {
@@ -160,7 +160,10 @@ export function validatePassport(p: unknown): { ok: boolean; errors: string[] } 
 
 /** Upgrade older passports in memory (the stored original snapshot is never modified). */
 export function migratePassport(p: BodyPassport): BodyPassport {
-  if (p.schemaVersion === "1.0") return { ...p, schemaVersion: "1.1", bodyModel: { ...p.bodyModel, generator: p.bodyModel.generator ?? "vitruvian-mannequin@1" } };
+  const legacy = LEGACY_PROFILE[p.profile as string];
+  if (p.schemaVersion === "1.0" || legacy) {
+    return { ...p, schemaVersion: "1.1", profile: legacy ?? p.profile, bodyModel: { ...p.bodyModel, generator: p.bodyModel.generator ?? "vitruvian-mannequin@1" } };
+  }
   return p;
 }
 

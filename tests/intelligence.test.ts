@@ -17,7 +17,7 @@ const WEEK = 7 * 86400000;
 const at = (w: number) => new Date(Date.parse("2026-01-05T08:00:00Z") + w * WEEK).toISOString();
 
 /** Snapshot of a synthetic body whose waist is `dWaist` m wider/deeper than baseline. */
-function snap(id: number, week: number, dWaist = 0, profile: "quick" | "precision" = "quick"): Snapshot {
+function snap(id: number, week: number, dWaist = 0, profile: "simple" | "intermediate" | "ultra" = "simple"): Snapshot {
   const b = new SyntheticBody();
   if (dWaist) {
     b.offsets.waist_side_l = [-dWaist / 2, 0, 0];
@@ -106,7 +106,7 @@ describe("BI-7/8/9 body models, interpolation and labels", () => {
   it("every snapshot mesh shares one topology (correspondence by construction)", () => {
     expect(ma.topology).toBe(mb.topology);
     expect(compatible(ma, mb)).toBe(true);
-    const precision = bodyMesh(snap(3, 9, 0, "precision").passport);
+    const precision = bodyMesh(snap(3, 9, 0, "intermediate").passport);
     expect(precision.topology).toBe(ma.topology);
   });
   it("interpolation is exact at the ends and stable in between", () => {
@@ -196,6 +196,7 @@ describe("BI-15 passports stay exportable across schema versions", () => {
     const old = { ...p, schemaVersion: "1.0" };
     expect(validatePassport(old).ok).toBe(true);
     expect(parsePassport(JSON.stringify(old)).schemaVersion).toBe("1.1");
+    expect(parsePassport(JSON.stringify({ ...p, profile: "quick" })).profile).toBe("simple"); // legacy mode id
     expect(migratePassport(p)).toBe(p);
     const ue = unrealPassport(p);
     expect(ue.Measurements.length).toBe(p.measurements.length);
@@ -212,7 +213,7 @@ describe("composition, appearance, shoes, Unreal axes, zip", () => {
     expect(c.ffmiNormalized!.value).toBeGreaterThan(10);
   });
   it("mannequin volume is in the human range", () => {
-    const v = meshVolumeL(buildMannequin(snap(1, 0, 0, "precision").passport));
+    const v = meshVolumeL(buildMannequin(snap(1, 0, 0, "intermediate").passport));
     expect(v).toBeGreaterThan(45);
     expect(v).toBeLessThan(120);
   });

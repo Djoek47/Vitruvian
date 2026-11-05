@@ -12,6 +12,8 @@ import { footLengthFromSize, SHOE_SYSTEMS, type ShoeSystem } from "./body/shoe";
 import type { Subject } from "./passport/passport";
 import type { AvatarFit } from "./scene/avatar";
 import { initEvolution } from "./evolution/dashboard";
+import { controllersSvg } from "./ui/questController";
+import { PROFILE_INFO, bodyPointsFor } from "./measurement/procedures";
 
 type Deps = { app: VitruvianApp; store: typeof Store; simulated: boolean; enterAR: () => Promise<void>; enterVR: () => Promise<void>; preview: () => void; loadAvatar: (src: string | ArrayBuffer) => Promise<AvatarFit | null> };
 
@@ -61,6 +63,15 @@ export function initLanding(d: Deps) {
     </div>
     <p class="hint">Recommended: Mixed Reality — you see your own body and the gold landmark points you capture. Clear 1.5 m around you.</p>
     <div id="resume"></div>
+  </section>
+  <section class="card" data-tab="headset" id="controls">
+    <h2>Controls</h2>
+    <div class="ctrl-art">${controllersSvg({ r_a: "hold", l_x: "press", r_b: "hover", l_y: "hover", r_trigger: "hover", l_trigger: "hover" })}</div>
+    <table><tr><td><b>Hold A</b> (or X)</td><td>Capture: fills only while you hold still</td></tr><tr><td><b>A</b> after a capture</td><td>Accept and go on</td></tr>
+    <tr><td><b>X</b> after a capture</td><td>Add a sample of the same point (more points = more established)</td></tr><tr><td><b>B</b> / <b>Y</b></td><td>Retake · back · close</td></tr>
+    <tr><td><b>Trigger</b></td><td>Select on the panels</td></tr><tr><td><b>Thumbstick click</b></td><td>Bring the panels in front of you</td></tr></table>
+    <h3>Measurement modes</h3>
+    <table>${(["simple", "intermediate", "ultra"] as const).map((k) => `<tr><td><b>${PROFILE_INFO[k].title}</b></td><td class="num">${bodyPointsFor(k)} points</td><td>${PROFILE_INFO[k].blurb} · ~${PROFILE_INFO[k].minutes} min</td></tr>`).join("")}</table>
   </section>
   <section class="card" data-tab="headset" id="about"></section>
   <section class="card" data-tab="headset" id="appearance"></section>

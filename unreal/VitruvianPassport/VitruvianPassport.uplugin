@@ -1,0 +1,13 @@
+{
+  "FileVersion": 3,
+  "Version": 1,
+  "VersionName": "1.0",
+  "FriendlyName": "Faberland Vitruvian Body Passport",
+  "Description": "Loads Vitruvian Body Passport exports (ue-passport-1.0: cm, X forward / Y right / Z up) into Blueprint-ready structs for MetaHuman fitting and garment checks.",
+  "Category": "Faberland",
+  "CreatedBy": "Faberland",
+  "CanContainContent": false,
+  "Modules": [
+    { "Name": "VitruvianPassport", "Type": "Runtime", "LoadingPhase": "Default" }
+  ]
+}

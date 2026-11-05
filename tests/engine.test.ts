@@ -6,6 +6,7 @@ import { solveTipOffset, type TipSample } from "../src/measurement/tip";
 import { circumferenceFromBreadthDepth, fitShapeExponent, ramanujanEllipse, superellipsePerimeter } from "../src/body/circumference";
 import { CaptureSession } from "../src/measurement/session";
 import { MEASUREMENTS, PROFILE_PRIMARY } from "../src/measurement/registry";
+import { bodyPointsFor, POINT_CAP } from "../src/measurement/procedures";
 import { buildPassport, parsePassport, passportToCsv, validatePassport } from "../src/passport/passport";
 import { mdMannequinObj, mdSheetRows, mdWorksheet } from "../src/bridge/marvelous";
 import { buildMannequin, ringPerimeterAt } from "../src/body/mannequin";
@@ -121,26 +122,28 @@ describe("circumference model", () => {
 
 describe("full guided capture on a synthetic body", () => {
   const body = new SyntheticBody();
-  const run = (profile: "quick" | "precision") => runSession(profile, body);
+  const run = (profile: "simple" | "intermediate" | "ultra") => runSession(profile, body);
 
-  it("quick fit recovers every primary measurement", () => {
-    const s = run("quick");
+  it("simple mode: 10 body points, every primary measurement, girths honestly ESTIMATED", () => {
+    const s = run("simple");
     expect(s.calibration.tipCalibrated).toBe(true);
     expect(s.calibration.tipOffsetM).toBeCloseTo(body.tipOffset, 3);
-    for (const id of PROFILE_PRIMARY.quick) expect(s.measurements[id], id).toBeDefined();
+    for (const id of PROFILE_PRIMARY.simple) expect(s.measurements[id], id).toBeDefined();
     expect(s.measurements.height.value).toBeCloseTo(body.height * 1000, 0);
     expect(s.measurements.shoulder_width.value).toBeCloseTo(body.shoulder * 1000, 0);
     expect(s.measurements.chest_width.value).toBeCloseTo(body.chestB * 1000, 0);
-    expect(s.measurements.chest_depth.value).toBeCloseTo(body.chestD * 1000, 0);
+    expect(s.measurements.chest_depth).toBeUndefined(); // Simple has no depth points
     expect(s.measurements.arm_length.value).toBeCloseTo(body.arm * 1000, 0);
+    expect(s.measurements.arm_length.method).toBe("derived"); // crossed-arm acromion → wrist
     expect(s.measurements.height.method).toBe("direct");
-    expect(s.measurements.chest_circumference.method).toBe("derived");
+    expect(s.measurements.chest_circumference.method).toBe("estimated");
+    expect(bodyPointsFor("simple")).toBe(10);
     expect(s.measurements.chest_circumference.value).toBeCloseTo(superellipsePerimeter(body.chestB * 1000, body.chestD * 1000, 2.4), -1);
     for (const m of Object.values(s.measurements)) expect(m.status, m.id + " " + (m.conflicts ?? []).join()).not.toBe("conflicted");
   });
 
-  it("precision fit adds the extended set, and the user is facing a rotated direction", () => {
-    const s = run("precision");
+  it("intermediate mode: ≈50 points, girths derived from measured breadth × depth", () => {
+    const s = run("intermediate");
     expect(s.measurements.inseam.value).toBeCloseTo(body.inseam * 1000, 0);
     expect(s.measurements.foot_length.value).toBeCloseTo(265, 0);
     expect(s.measurements.thigh_width.value).toBeCloseTo(160, 0);
@@ -150,13 +153,35 @@ describe("full guided capture on a synthetic body", () => {
     expect(s.measurements.forearm_length.value).toBeCloseTo(250, 0);
     expect(s.measurements.eye_height).toBeDefined();
     expect(s.measurements.upper_arm_circumference).toBeUndefined(); // tape-only
+    expect(s.measurements.chest_circumference.method).toBe("derived");
+    expect(s.measurements.across_front.value).toBeCloseTo(310, 0);
+    expect(s.measurements.across_back.value).toBeCloseTo(340, 0);
+    expect(s.measurements.armhole_depth.value).toBeCloseTo(220, 0);
+    expect(s.measurements.shoulder_slope_r.value).toBeCloseTo(40, 0);
+    expect(s.measurements.high_hip_circumference.method).toBe("estimated"); // depth only in Ultra
+    const pts = bodyPointsFor("intermediate") + 2;
+    expect(pts).toBeGreaterThanOrEqual(45);
+    expect(pts).toBeLessThanOrEqual(55);
     expect(s.measurements.neck_circumference).toBeDefined();
     expect(s.measurements.arm_span.method).toBe("derived");
     expect(Object.keys(s.measurements).length).toBeGreaterThanOrEqual(20);
   });
 
+  it("ultra mode: tailor's set, symmetry, capped points", () => {
+    const s = run("ultra");
+    expect(s.measurements.apex_to_apex.value).toBeCloseTo(190, 0);
+    expect(s.measurements.underbust_circumference.method).toBe("derived");
+    expect(s.measurements.high_hip_circumference.method).toBe("derived");
+    expect(s.measurements.arm_length_left.value).toBeCloseTo(580, 0);
+    expect(s.measurements.knee_circumference.method).toBe("derived");
+    expect(s.measurements.neck_base_circumference.method).toBe("derived");
+    for (const m of Object.values(s.measurements)) expect(m.status, m.id + " " + (m.conflicts ?? []).join()).not.toBe("conflicted");
+    expect(s.totalSamples()).toBeLessThanOrEqual(POINT_CAP.ultra);
+    expect(bodyPointsFor("ultra")).toBeGreaterThan(bodyPointsFor("intermediate"));
+  });
+
   it("manual override wins, and is flagged when it conflicts", () => {
-    const s = run("quick");
+    const s = run("simple");
     s.setManual("height", body.height * 1000 + 3);
     expect(s.measurements.height.method).toBe("manual");
     expect(s.measurements.height.status).not.toBe("conflicted");
@@ -166,14 +191,14 @@ describe("full guided capture on a synthetic body", () => {
   });
 
   it("capture never commits while moving or untracked", () => {
-    const s = new CaptureSession("quick");
+    const s = new CaptureSession("simple");
     for (let i = 0; i < 200; i++) {
       const f = frameFor(body, s.step!, i * 14, 0);
       f.right!.aim!.position.x += i * 0.003; // drifting (first step = ground, right tip)
       s.update(f, true);
     }
     expect(s.phase).not.toBe("review");
-    const s2 = new CaptureSession("quick");
+    const s2 = new CaptureSession("simple");
     for (let i = 0; i < 200; i++) {
       const f = frameFor(body, s2.step!, i * 14, 0);
       f.right!.aim!.tracked = false;
@@ -184,8 +209,8 @@ describe("full guided capture on a synthetic body", () => {
   });
 
   it("passport round-trips, validates, exports CSV / MD sheet / OBJ", () => {
-    const s = run("precision");
-    const p = buildPassport({ displayName: "Synthetic", profile: "precision", device: "test", simulated: true, calibration: s.calibration, measurements: s.measurements, landmarks: s.landmarks, captures: s.captures, consentTimestamp: "2026-01-01T00:00:00Z", now: "2026-01-01T00:00:00Z" });
+    const s = run("intermediate");
+    const p = buildPassport({ displayName: "Synthetic", profile: "intermediate", device: "test", simulated: true, calibration: s.calibration, measurements: s.measurements, landmarks: s.landmarks, captures: s.captures, consentTimestamp: "2026-01-01T00:00:00Z", now: "2026-01-01T00:00:00Z" });
     expect(validatePassport(p).ok).toBe(true);
     const back = parsePassport(JSON.stringify(p));
     expect(back.measurements.length).toBe(p.measurements.length);
@@ -207,8 +232,8 @@ describe("full guided capture on a synthetic body", () => {
   });
 
   it("t-shirt fit separates body, garment and ease", () => {
-    const s = run("quick");
-    const p = buildPassport({ displayName: "x", profile: "quick", device: "t", simulated: true, calibration: s.calibration, measurements: s.measurements, landmarks: s.landmarks, captures: s.captures, consentTimestamp: "x" });
+    const s = run("simple");
+    const p = buildPassport({ displayName: "x", profile: "simple", device: "t", simulated: true, calibration: s.calibration, measurements: s.measurements, landmarks: s.landmarks, captures: s.captures, consentTimestamp: "x" });
     const chest = s.measurements.chest_circumference.value;
     const r = evaluateTshirt(p, { name: "t", size: "M", chestMm: chest + 90, shoulderMm: s.measurements.shoulder_width.value + 20, bodyLengthMm: 720, sleeveLengthMm: 210 });
     const c = r.lines.find((l) => l.area === "Chest")!;
@@ -222,7 +247,7 @@ describe("full guided capture on a synthetic body", () => {
 
 describe("step order and calibration", () => {
   it("ground first, then head, then instrument; earlier tip points are re-projected after calibration", () => {
-    const s = runSession("quick");
+    const s = runSession("simple");
     expect(s.steps.slice(0, 3).map((x) => x.id)).toEqual(["cal_floor", "cal_stance", "cal_tip"]);
     const body = new SyntheticBody();
     // floor was captured with an uncalibrated tip (offset 0) — after calibration it must sit on the true floor
@@ -232,7 +257,7 @@ describe("step order and calibration", () => {
   it("more samples = more established: averaging repeated placements shrinks uncertainty", () => {
     const body = new SyntheticBody();
     let now = 0;
-    const s = new CaptureSession("quick", () => new Date(1767225600000 + now).toISOString());
+    const s = new CaptureSession("simple", () => new Date(1767225600000 + now).toISOString());
     const capture = () => {
       for (let i = 0; i < 200 && s.phase !== "review"; i++) {
         now += 14;

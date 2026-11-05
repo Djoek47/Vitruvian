@@ -52,6 +52,20 @@ export class SyntheticBody {
       ankle_r: [0.1, 0.075, 0], heel_r: [0.1, 0, -0.05], toe_r: [0.1, 0, 0.215],
       thigh_out_r: [0.2, 0.75, 0], thigh_in_r: [0.04, 0.75, 0], thigh_front_r: [0.12, 0.75, 0.085], thigh_back_r: [0.12, 0.75, -0.085],
       calf_out_r: [0.15, 0.33, 0], calf_in_r: [0.05, 0.33, 0], calf_front_r: [0.1, 0.33, 0.05], calf_back_r: [0.1, 0.33, -0.06],
+      // tailor's set
+      hps_l: [-0.075, 1.5, -0.01], hps_r: [0.075, 1.5, -0.01],
+      front_armpit_l: [-0.155, 1.33, 0.08], front_armpit_r: [0.155, 1.33, 0.08],
+      back_armpit_l: [-0.17, 1.33, -0.09], back_armpit_r: [0.17, 1.33, -0.09],
+      axilla_r: [0.15, 1.3, 0],
+      bust_point_l: [-0.095, 1.27, 0.125], bust_point_r: [0.095, 1.27, 0.125],
+      underbust_side_l: [-0.15, 1.2, 0], underbust_side_r: [0.15, 1.2, 0], underbust_front: [0, 1.2, 0.11], underbust_back: [0, 1.2, -0.11],
+      high_hip_side_l: [-0.16, 1.0, 0], high_hip_side_r: [0.16, 1.0, 0], high_hip_front: [0, 1.0, 0.115], high_hip_back: [0, 1.0, -0.12],
+      neck_base_front: [0, 1.47, 0.07], nape_base: [0, 1.51, -0.065],
+      arm_acromion_l: [-b.shoulder / 2, 1.46, 0],
+      elbow_l: [-(b.shoulder / 2 + armDir.x * 0.33), 1.46 + armDir.y * 0.33, 0],
+      wrist_l: [-(b.shoulder / 2 + armDir.x * b.arm), 1.46 + armDir.y * b.arm, 0],
+      knee_l: [-0.1, 0.5, 0], ankle_l: [-0.1, 0.075, 0],
+      knee_out_r: [0.155, 0.5, 0], knee_in_r: [0.045, 0.5, 0], knee_front_r: [0.1, 0.5, 0.055], knee_back_r: [0.1, 0.5, -0.055],
     };
     const o = this.offsets[id];
     if (o && tbl[id]) tbl[id] = [tbl[id][0] + o[0], tbl[id][1] + o[1], tbl[id][2] + o[2]];
@@ -107,7 +121,7 @@ import { CaptureSession } from "../src/measurement/session";
 import { buildPassport, type BodyPassport } from "../src/passport/passport";
 
 /** Run a full guided session on a synthetic body (every step captured, accepted). */
-export function runSession(profile: "quick" | "precision", body = new SyntheticBody(), startMs = 1767225600000) {
+export function runSession(profile: "simple" | "intermediate" | "ultra", body = new SyntheticBody(), startMs = 1767225600000) {
   let now = 0;
   const s = new CaptureSession(profile, () => new Date(startMs + now).toISOString());
   while (s.phase !== "done") {

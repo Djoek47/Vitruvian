@@ -20,7 +20,17 @@ export const SHAPE_PRIORS: Record<string, number> = {
   neck: 2.0,
   thigh: 2.1,
   calf: 2.0,
+  high_hip: 2.3,
+  underbust: 2.3,
+  knee: 2.0,
 };
+
+/**
+ * Depth ÷ breadth population priors, used ONLY when a mode skipped the depth
+ * points (Simple). The resulting girth is labelled ESTIMATED with a wide (±6 %)
+ * model uncertainty. These are not validated anthropometric constants.
+ */
+export const DEPTH_RATIO: Record<string, number> = { chest: 0.75, waist: 0.76, hip: 0.71, neck: 1.0, thigh: 1.05, calf: 1.1, high_hip: 0.74, underbust: 0.74, knee: 1.0 };
 
 /** Perimeter of a superellipse by numeric integration over the first quadrant. */
 export function superellipsePerimeter(breadth: number, depth: number, n: number, steps = 720): number {

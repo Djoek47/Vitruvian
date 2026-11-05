@@ -4,7 +4,7 @@ import { LANDMARKS } from "../anatomy/landmarks";
 import { MEASUREMENTS, MEASUREMENT_BY_ID, PROFILE_PRIMARY } from "../measurement/registry";
 import { CaptureSession, CAPTURE_CONFIG, type SessionSnapshot } from "../measurement/session";
 import { Stabilizer, DEFAULT_STABILIZER } from "../measurement/stabilizer";
-import { STEPS, type CaptureStep } from "../measurement/procedures";
+import { STEPS, POINT_CAP, PROFILE_INFO, bodyPointsFor, type CaptureStep } from "../measurement/procedures";
 import { tipPoint } from "../measurement/tip";
 import type { ProfileKind } from "../measurement/types";
 import { buildPassport, calibrationFromPassport, type BodyPassport, type Subject } from "../passport/passport";
@@ -16,6 +16,8 @@ import type { RulerReading } from "../validation/stats";
 import type { TrackingFrame } from "../tracking/types";
 import type { TwinMode } from "../scene/twin";
 import { CanvasPanel, glyph, poly } from "../ui/canvasPanel";
+import { drawControllers } from "../ui/questController";
+import type { HintSpec } from "../scene/controllerHints";
 import { T } from "../ui/theme";
 
 export type Screen = "boot" | "tutorial" | "home" | "about" | "settings" | "steps" | "capture" | "studio" | "editor" | "results" | "fit";
@@ -28,9 +30,10 @@ export type Settings = {
   twin: TwinMode;
   panelDistance: "near" | "normal" | "far";
   showAxes: boolean;
+  controllerHints: boolean;
   tutorialDone: boolean;
 };
-export const DEFAULT_SETTINGS: Settings = { units: "cm", holdMs: 900, relaxed: false, haptics: true, twin: "hologram", panelDistance: "normal", showAxes: true, tutorialDone: false };
+export const DEFAULT_SETTINGS: Settings = { units: "cm", holdMs: 900, relaxed: false, haptics: true, twin: "hologram", panelDistance: "normal", showAxes: true, controllerHints: true, tutorialDone: false };
 
 export type TrackingEvent = { t: string; device: "left" | "right" | "head"; event: "lost" | "recovered" | "connected" };
 
@@ -56,10 +59,14 @@ const FIRST_STEP_FOR: Record<string, string> = {
   hip_circumference: "hip_sides", arm_length: "arm_top", upper_arm_length: "arm_top", forearm_length: "arm_elbow", shoulder_height: "arm_top", waist_height: "waist_sides",
   back_length: "neck_fb", front_waist_length: "neck_fb", neck_width: "neck_sides", neck_depth: "neck_fb", neck_circumference: "neck_sides", inseam: "crotch", rise: "crotch",
   outseam: "waist_sides", knee_height: "knee", ankle_height: "ankle", foot_length: "foot", arm_span: "span",
+  thigh_width: "thigh_sides", thigh_depth: "thigh_fb", thigh_circumference: "thigh_sides", calf_width: "calf_sides", calf_depth: "calf_fb", calf_circumference: "calf_sides",
+  shoulder_length_r: "hps", shoulder_length_l: "hps", shoulder_slope_r: "hps", shoulder_slope_l: "hps", neck_base_width: "hps", neck_base_depth: "neck_base_fb", neck_base_circumference: "hps",
+  across_front: "across_front", across_back: "across_back", armhole_depth: "axilla", front_length_hps: "hps", nape_to_floor: "neck_fb", waist_to_hip: "waist_sides", waist_to_knee: "knee",
+  high_hip_width: "high_hip_sides", high_hip_depth: "high_hip_fb", high_hip_circumference: "high_hip_sides", apex_to_apex: "bust_points", hps_to_apex: "bust_points",
+  underbust_width: "underbust_sides", underbust_depth: "underbust_fb", underbust_circumference: "underbust_sides", arm_length_left: "arm_top_l", upper_arm_length_left: "arm_top_l",
+  forearm_length_left: "arm_elbow_l", knee_height_left: "knee_l", ankle_height_left: "ankle_l", knee_width: "knee_sides", knee_depth: "knee_fb", knee_circumference: "knee_sides",
 };
 
-/** Design-file controller silhouette (ScreenMeasurementStudio.tsx, 72×120 viewBox). */
-const CONTROLLER_PATH = "M28 8 C20 8 14 14 13 24 L11 52 C11 64 8 80 6 96 C4 108 10 116 18 116 L28 116 C32 116 36 112 36 108 L36 72 C44 72 52 68 56 60 L60 40 C62 28 56 14 44 10 Z";
 
 const TUTORIAL = [
   { title: "HOW VITRUVIAN MEASURES", lines: ["Your two controllers become a measuring instrument.", "You touch points on your body with the controller TIPS.", "Each point is recorded in 3D — X left–right, Y up–down, Z front–back.", "The more points you capture, the more established your body model becomes."] },
@@ -193,6 +200,12 @@ export class VitruvianApp {
   async save() {
     const p = this.buildPassport();
     if (!p || !p.measurements.length) return;
+    // Snapshots are immutable history: don't append an identical copy of the latest one.
+    const sig = (x: BodyPassport) => JSON.stringify([x.profileId, x.measurements.map((m) => [m.id, m.value, m.method, m.status]), x.landmarks.length, x.subject ?? null, x.appearance?.skinTone?.hex ?? null]);
+    if (this.latest && sig(this.latest) === sig(p)) {
+      this.say("Body Passport already saved");
+      return;
+    }
     this.latest = p;
     await this.hooks.savePassport(p);
     this.say("Body Passport saved on this headset");
@@ -408,6 +421,27 @@ export class VitruvianApp {
     return { a, b, state, progress: s.progress, readout: lost ? "NO TRACK" : readout, sub, axes };
   }
 
+  /** What the floating controller hint card should show (Figma controller art + lit button). */
+  hintSpec(side: "left" | "right"): HintSpec {
+    if (!this.settings.controllerHints || this.modal) return null;
+    const s = this.session;
+    if (this.screen === "capture" && s?.step) {
+      if (s.phase === "review") {
+        return side === "right"
+          ? { states: { r_a: "press", r_b: "hover" }, labels: { r_a: "ACCEPT", r_b: "RETAKE" }, caption: "A accept · B retake" }
+          : { states: { l_x: "press", l_y: "hover" }, labels: { l_x: "+ SAMPLE", l_y: "RETAKE" }, caption: "X add a sample" };
+      }
+      const holding = s.phase === "holding";
+      const stable = s.lastReport?.stable;
+      return side === "right"
+        ? { states: { r_a: holding ? "hold" : stable ? "hover" : "idle" }, labels: { r_a: holding ? "HOLD…" : "HOLD A" }, caption: holding ? "Keep still…" : stable ? "Hold A to capture" : "Place the tip" }
+        : { states: { l_x: holding ? "hold" : stable ? "hover" : "idle" }, labels: { l_x: holding ? "HOLD…" : "HOLD X" }, caption: holding ? "Keep still…" : stable ? "or hold X" : "Place the tip" };
+    }
+    if (this.screen === "studio") return side === "right" ? { states: { r_a: this.studio.progress > 0 ? "hold" : "hover" }, labels: { r_a: "HOLD A" }, caption: "Hold A to log a reading" } : null;
+    if (this.screen === "tutorial") return side === "right" ? { states: { r_a: "hover", r_trigger: "hover" }, labels: { r_a: "NEXT", r_trigger: "SELECT" }, caption: "A next · trigger select" } : { states: { l_y: "hover" }, labels: { l_y: "BACK" }, caption: "Y back" };
+    return null;
+  }
+
   highlightLandmarks(): string[] {
     const s = this.session;
     if (this.screen === "capture" && s?.step) return s.step.points.map((p) => p.landmark);
@@ -420,7 +454,7 @@ export class VitruvianApp {
     const s = this.session;
     const f = this.frame;
     const trk = `${!!f?.left?.aim?.tracked}${!!f?.right?.aim?.tracked}${!!f?.head?.tracked}`;
-    const sig = [this.screen, this.modal, this.tutorialPage, this.screen === "boot" ? Math.floor(this.bootT * 24) : 0, trk, JSON.stringify(this.settings), JSON.stringify(this.subject),
+    const sig = [this.screen, this.modal, this.tutorialPage, this.screen === "boot" ? Math.floor(this.bootT * 24) : this.screen === "tutorial" && this.tutorialPage === 2 ? Math.floor(this.t * 6) : 0, trk, JSON.stringify(this.settings), JSON.stringify(this.subject),
       this.toastT > 0 ? this.toast : "", s?.index, s?.phase, s?.message, s?.refining, s?.lastReport?.reason, Math.round((s?.progress ?? 0) * 20),
       Object.values(s?.measurements ?? {}).map((m) => m.id + m.value.toFixed(1) + m.status + m.method).join(), Object.keys(s?.landmarks ?? {}).length,
       this.editor.sel, this.editor.page, this.studio.readings.length, this.studio.keypad, this.studio.readings.at(-1)?.refMm, this.latest?.updatedAt].join("|");
@@ -434,14 +468,15 @@ export class VitruvianApp {
       scr[this.screen]();
       if (this.toastT > 0) {
         const c = g.ctx;
-        c.fillStyle = "rgba(13,11,8,0.92)";
+        // toast lives in the header strip (between the wordmark and the tracking pills) so it never covers content
+        c.fillStyle = "rgba(13,11,8,0.95)";
         c.beginPath();
-        c.roundRect(W / 2 - 420, 124, 840, 64, 32);
+        c.roundRect(W / 2 - 330, 28, 660, 64, 32);
         c.fill();
         c.strokeStyle = T.success;
         c.lineWidth = 3;
         c.stroke();
-        g.text("✓  " + this.toast, W / 2, 167, { size: 30, weight: 600, color: T.success, align: "center" });
+        g.text("✓  " + this.toast, W / 2, 71, { size: 28, weight: 600, color: T.success, align: "center", maxW: 620 });
       }
       if (this.modal) this.drawModal(g);
     });
@@ -552,55 +587,28 @@ export class VitruvianApp {
       axis(-110, 90, T.info, "Z");
       g.text("left–right · up–down · front–back", gx + 40, gy + 150, { size: 24, color: T.text3, align: "center" });
     } else if (p === 1) {
-      // design-file controller silhouette, enlarged, with the measuring tip marked
-      c.save();
-      c.translate(ox + 60, 300);
-      c.scale(4.2, 4.2);
-      c.strokeStyle = T.gold;
-      c.lineWidth = 1.1;
-      c.fillStyle = "rgba(255,198,26,0.06)";
-      const path = new Path2D(CONTROLLER_PATH);
-      c.fill(path);
-      c.stroke(path);
-      c.beginPath();
-      c.ellipse(44, 28, 8, 6, 0, 0, Math.PI * 2);
-      c.stroke();
-      c.beginPath();
-      c.arc(52, 44, 4, 0, Math.PI * 2);
-      c.stroke();
-      c.beginPath();
-      c.arc(44, 52, 4, 0, Math.PI * 2);
-      c.stroke();
-      c.restore();
-      const tipX = ox + 60 + 36 * 4.2;
-      const tipY = 300 + 8 * 4.2;
-      c.fillStyle = "#FFF6E6";
-      c.shadowColor = T.gold;
-      c.shadowBlur = 24;
-      c.beginPath();
-      c.arc(tipX, tipY - 6, 12, 0, Math.PI * 2);
-      c.fill();
-      c.shadowBlur = 0;
-      g.text("MEASURING TIP", tipX + 30, tipY - 20, { size: 28, weight: 700, color: T.gold });
-      g.text("thumbstick", ox + 60 + 52 * 4.2 + 40, 300 + 28 * 4.2 + 10, { size: 24, color: T.text3 });
-      g.text("A / B  (X / Y)", ox + 60 + 56 * 4.2 + 40, 300 + 48 * 4.2 + 10, { size: 24, color: T.text3 });
-      g.text("trigger (index finger)", ox - 40, 300 + 64 * 4.2, { size: 24, color: T.text3, align: "right" });
+      // the Figma design's Touch Plus artwork (QuestController.tsx), measuring tips marked
+      drawControllers(c, 900, 300, 640, { side: "both", showAllLabels: true, tip: true, states: { l_trigger: "hover", r_trigger: "hover" }, time: this.t });
+      g.text("◆ MEASURING TIPS — the gold dots in the headset", 1220, 740, { size: 26, weight: 700, color: T.gold, align: "center" });
+      g.text("Left hand", 1030, 284, { size: 24, color: T.text3, align: "center" });
+      g.text("Right hand", 1410, 284, { size: 24, color: T.text3, align: "center" });
     } else if (p === 2) {
       const rows: [string, string, string][] = [
         ["A", "Hold A (or X)", "Capture — fills only while you hold still"],
-        ["A", "Press A after a capture", "Accept and go to the next step"],
-        ["X", "Press X after a capture", "Add another sample of the same point (more established)"],
+        ["A", "Press A after a capture", "Accept and go on"],
+        ["X", "Press X after a capture", "Add a sample of the same point"],
         ["B", "B (or Y)", "Retake · back · close"],
         ["trigger", "Trigger at a panel", "Select a button"],
         ["stick", "Click a thumbstick", "Bring the panels in front of you"],
       ];
       rows.forEach(([gl, a, b2], i) => {
-        const yy = 360 + i * 92;
+        const yy = 350 + i * 86;
         glyph(c, gl, 90, yy - 12, T.gold);
-        g.text(a, 140, yy, { size: 32, weight: 600, color: T.text });
-        g.text(b2, 560, yy, { size: 28, color: T.text2, maxW: 960 });
+        g.text(a, 140, yy, { size: 30, weight: 600, color: T.text });
+        g.text(b2, 140, yy + 34, { size: 24, color: T.text2, maxW: 760 });
       });
-      g.text("The Meta and Menu buttons are reserved by the system.", 64, 930, { size: 24, color: T.text3 });
+      drawControllers(c, 920, 330, 620, { side: "both", time: this.t, states: { r_a: "hold", l_x: "press", r_b: "hover", l_y: "hover", r_trigger: "hover", l_trigger: "hover", r_stick: "hover", l_stick: "hover" }, labels: { r_a: "A · CAPTURE", l_x: "X · +SAMPLE", r_b: "B · BACK", l_y: "Y · BACK", r_trigger: "SELECT", l_trigger: "SELECT" } });
+      g.text("The Meta and Menu buttons are reserved by the system.", 64, 900, { size: 24, color: T.text3 });
     } else if (p === 3) {
       c.strokeStyle = T.gold;
       c.lineWidth = 3;
@@ -627,8 +635,9 @@ export class VitruvianApp {
   private pointsMeter(g: CanvasPanel, x: number, y: number, w: number) {
     const pi = this.pointsInfo();
     g.label("Body model", x, y);
-    g.text(`${pi.captured} / ${pi.total} points`, x, y + 46, { size: 34, weight: 600, color: T.text });
-    g.text(`${Math.round(pi.established * 100)}% established`, x + w, y + 46, { size: 28, weight: 600, color: T.gold, align: "right" });
+    const narrow = w < 560;
+    g.text(`${pi.captured} / ${pi.total} points`, x, y + 46, { size: narrow ? 30 : 34, weight: 600, color: T.text });
+    g.text(`${Math.round(pi.established * 100)}% established`, x + w, y + (narrow ? 14 : 46), { size: narrow ? 24 : 28, weight: 600, color: T.gold, align: "right" });
     g.progressBar(x, y + 64, w, pi.total ? pi.captured / pi.total : 0, T.amber);
     g.progressBar(x, y + 84, w, pi.established, T.gold);
     if (pi.samples > pi.captured) g.text(`${pi.samples} samples averaged`, x, y + 126, { size: 22, color: T.text3 });
@@ -639,23 +648,25 @@ export class VitruvianApp {
     g.text("Body Measurement Instrument", 64, 296, { size: 38, weight: 500, color: T.text2 });
     g.para("Measure once. Your Body Passport powers your avatar, virtual try-on and clothing made for your proportions.", 64, 350, 740, { size: 30, color: T.text3 });
     const card = (id: string, x: number, y: number, title: string, sub: string, onClick: () => void, primary = false) => {
-      g.button(id, { x, y, w: 680, h: 140 }, "", onClick, { variant: primary ? "primary" : "secondary" });
-      g.text(title, x + 36, y + 62, { size: 44, weight: 700, color: primary ? T.panel : T.text, font: "display", italic: true });
-      g.text(sub, x + 36, y + 108, { size: 27, weight: 600, color: primary ? "#3a2c08" : T.text3 });
+      g.button(id, { x, y, w: 680, h: 116 }, "", onClick, { variant: primary ? "primary" : "secondary" });
+      g.text(title, x + 32, y + 52, { size: 40, weight: 700, color: primary ? T.panel : T.text, font: "display", italic: true });
+      g.text(sub, x + 32, y + 92, { size: 24, weight: 600, color: primary ? "#3a2c08" : T.text3, maxW: 620 });
     };
     const s = this.session;
     const resumable = !!s && s.phase !== "done" && s.index > 0;
-    const resumeQ = resumable && s!.profile === "quick";
-    const resumeP = resumable && s!.profile === "precision";
-    card("quick", 860, 140, resumeQ ? "RESUME QUICK FIT" : "QUICK FIT", resumeQ ? `Continue at step ${s!.index + 1} / ${s!.steps.length}` : `${PROFILE_PRIMARY.quick.length} essentials · tee-shirt ready · ~4 min`, () => (resumeQ ? (this.screen = "capture") : this.startProfile("quick")), true);
-    card("precision", 860, 296, resumeP ? "RESUME PRECISION" : "PRECISION FIT", resumeP ? `Continue at step ${s!.index + 1} / ${s!.steps.length}` : `${MEASUREMENTS.length} measurements · ~8 min`, () => (resumeP ? (this.screen = "capture") : this.startProfile("precision")));
-    card("studio", 860, 452, "MEASUREMENT STUDIO", "Live tip-to-tip · ruler validation", () => {
+    const modes: ProfileKind[] = ["simple", "intermediate", "ultra"];
+    modes.forEach((k, i) => {
+      const resume = resumable && s!.profile === k;
+      const info = PROFILE_INFO[k];
+      card(k, 860, 140 + i * 128, (resume ? "RESUME " : "") + info.title.toUpperCase(), resume ? `Continue at step ${s!.index + 1} / ${s!.steps.length}` : `${bodyPointsFor(k)} body points · ${info.blurb.split(" · ").slice(1).join(" · ")} · ~${info.minutes} min`, () => (resume ? (this.screen = "capture") : this.startProfile(k)), i === 0);
+    });
+    card("studio", 860, 524, "MEASUREMENT STUDIO", "Live tip-to-tip · ruler validation", () => {
       this.studio.stab.reset();
       this.screen = "studio";
     });
-    card("editor", 860, 608, "BODY PASSPORT", this.latest ? `Saved ${this.latest.updatedAt.slice(0, 10)} · ${this.latest.measurements.length} values` : s ? "Current session" : "No passport yet", () => (this.screen = s ? "editor" : "home"));
+    card("editor", 860, 652, "BODY PASSPORT", this.latest ? `Saved ${this.latest.updatedAt.slice(0, 10)} · ${this.latest.measurements.length} values` : s ? "Current session" : "No passport yet", () => (this.screen = s ? "editor" : "home"));
     if (s) this.pointsMeter(g, 64, 470, 740);
-    else g.para("Start with Quick Fit. You can add points later — every extra point makes your model more accurate.", 64, 500, 740, { size: 28, color: T.text2 });
+    else g.para("Start with Simple (10 points). Upgrade to Intermediate or Ultra later — your points are kept, and every extra point makes your model more established.", 64, 500, 740, { size: 28, color: T.text2 });
     const small: [string, string, () => void][] = [
       ["about", "About you", () => (this.screen = "about")],
       ["settings", "Settings", () => (this.screen = "settings")],
@@ -666,7 +677,7 @@ export class VitruvianApp {
       ["exit", "Exit", () => (this.modal = "exit")],
     ];
     small.forEach(([id, l, fn], i) => g.button(id, { x: 64 + i * 192, y: 800, w: 180, h: 80 }, l, fn, { variant: id === "exit" ? "ghost" : "secondary", size: 28 }));
-    g.button("steps", { x: 860, y: 800, w: 680, h: 80 }, "Step map", () => (this.screen = s ? "steps" : "home"), { variant: "ghost", disabled: !s, size: 30 });
+    g.button("steps", { x: 860, y: 790, w: 680, h: 72 }, "Step map", () => (this.screen = s ? "steps" : "home"), { variant: "ghost", disabled: !s, size: 30 });
     this.hint(g, 64, 960, [["trigger", "Select"], ["A", "Capture / next"], ["X", "+Sample"], ["B", "Back"], ["stick", "Recenter"]]);
   }
 
@@ -749,7 +760,7 @@ export class VitruvianApp {
     row(530, "Your twin", "How your measured body is shown", ["Gold lines", "Hologram", "Skin tone"], twins.indexOf(st.twin), (i) => this.applySettings({ twin: twins[i] }));
     const dists: Settings["panelDistance"][] = ["near", "normal", "far"];
     row(630, "Panel distance", "Re-centres the panels", ["Near", "Normal", "Far"], dists.indexOf(st.panelDistance), (i) => this.applySettings({ panelDistance: dists[i] }));
-    row(730, "Haptics · XYZ", "Controller vibration · axis readout on the beam", ["Haptics on", "Haptics off", st.showAxes ? "XYZ on" : "XYZ off"], st.haptics ? 0 : 1, (i) => (i === 2 ? this.applySettings({ showAxes: !st.showAxes }) : this.applySettings({ haptics: i === 0 })));
+    row(730, "Haptics · XYZ · hints", "Vibration · axis readout · button hints above the controllers", ["Haptics on", "Haptics off", st.showAxes ? "XYZ on" : "XYZ off", st.controllerHints ? "Hints on" : "Hints off"], st.haptics ? 0 : 1, (i) => (i === 2 ? this.applySettings({ showAxes: !st.showAxes }) : i === 3 ? this.applySettings({ controllerHints: !st.controllerHints }) : this.applySettings({ haptics: i === 0 })));
     g.button("setdone", { x: 64, y: 900, w: 300, h: 84 }, "Done", () => (this.screen = "home"), { variant: "primary" });
     g.button("tut", { x: 384, y: 900, w: 340, h: 84 }, "Replay tutorial", () => {
       this.tutorialPage = 0;
@@ -761,39 +772,45 @@ export class VitruvianApp {
   private drawSteps(g: CanvasPanel) {
     const s = this.session!;
     g.text("STEP MAP", 64, 200, { size: 56, weight: 700, font: "display", italic: true, color: T.gold });
-    g.text(`${s.profile === "quick" ? "Quick Fit" : "Precision Fit"} · tap any step to (re)capture it · ✓ = captured`, 64, 246, { size: 26, color: T.text3 });
-    const half = Math.ceil(s.steps.length / 2);
+    g.text(`${PROFILE_INFO[s.profile].title} · tap any step to (re)capture it · ✓ = captured · points ${s.totalSamples()} / ${POINT_CAP[s.profile]}`, 64, 246, { size: 26, color: T.text3 });
+    const cols = s.steps.length > 22 ? 3 : 2;
+    const per = Math.ceil(s.steps.length / cols);
+    const colW = cols === 3 ? 500 : 760;
+    const rowH = s.steps.length > 33 ? 40 : 54;
     let lastSec = "";
-    const y = [290, 290];
+    const y = [290, 290, 290];
     s.steps.forEach((st, i) => {
-      const c = i < half ? 0 : 1;
-      const x = 64 + c * 760;
+      const c = Math.floor(i / per);
+      const x = 64 + c * colW;
       if (st.section !== lastSec) {
         lastSec = st.section;
         g.label(st.section, x, y[c] + 12, T.gold);
-        y[c] += 24;
+        y[c] += rowH < 50 ? 18 : 24;
       }
       const done = this.stepDone(st);
       const cur = i === s.index;
-      g.button("st" + st.id, { x, y: y[c], w: 720, h: 52 }, "", () => {
+      g.button("st" + st.id, { x, y: y[c], w: colW - 40, h: rowH - 2 }, "", () => {
         s.goTo(i);
         this.screen = "capture";
       }, { variant: cur ? "secondary" : "ghost" });
-      g.text(done ? "✓" : cur ? "▶" : "○", x + 26, y[c] + 37, { size: 28, weight: 700, color: done ? T.success : cur ? T.gold : T.text3 });
-      g.text(`${i + 1}. ${st.title}`, x + 64, y[c] + 37, { size: 27, color: done ? T.text : T.text2 });
+      const fs = rowH < 50 ? 22 : 27;
+      g.text(done ? "✓" : cur ? "▶" : "○", x + 22, y[c] + rowH * 0.68, { size: fs, weight: 700, color: done ? T.success : cur ? T.gold : T.text3 });
+      g.text(`${i + 1}. ${st.title}`, x + 54, y[c] + rowH * 0.68, { size: fs, color: done ? T.text : T.text2, maxW: colW - 150 });
       const n = st.points.reduce((a, p) => a + (s.landmarks[p.landmark]?.samples ?? 0), 0);
-      if (n > st.points.length) g.text(`${n} samples`, x + 700, y[c] + 37, { size: 22, color: T.text3, align: "right" });
-      y[c] += 54;
+      if (n > st.points.length) g.text(`${n}×`, x + colW - 50, y[c] + rowH * 0.68, { size: 20, color: T.text3, align: "right" });
+      y[c] += rowH;
     });
     g.button("stback", { x: 64, y: 950, w: 300, h: 70 }, "Back", () => (this.screen = s.phase === "done" ? "results" : "capture"), { variant: "ghost" });
-    g.button("stprec", { x: 384, y: 950, w: 520, h: 70 }, "Switch to Precision Fit", () => {
+    const next: ProfileKind | null = s.profile === "simple" ? "intermediate" : s.profile === "intermediate" ? "ultra" : null;
+    g.button("stprec", { x: 384, y: 950, w: 520, h: 70 }, next ? `Upgrade to ${PROFILE_INFO[next].title} (keeps your points)` : "Ultra — the full tailoring set", () => {
+      if (!next) return;
       const keep = s;
-      const ns = new CaptureSession("precision");
+      const ns = new CaptureSession(next);
       Object.assign(ns, { calibration: keep.calibration, landmarks: keep.landmarks, manual: keep.manual, locked: keep.locked, captures: keep.captures, tipSamples: keep.tipSamples });
       ns.recompute();
-      ns.goTo(ns.steps.findIndex((x) => !this.stepDoneFor(ns, x)));
+      ns.goTo(Math.max(0, ns.steps.findIndex((x) => !this.stepDoneFor(ns, x))));
       this.session = ns;
-    }, { variant: "ghost", disabled: s.profile === "precision", size: 28 });
+    }, { variant: "ghost", disabled: !next, size: 26 });
   }
 
   private stepDoneFor(s: CaptureSession, st: CaptureStep): boolean {
@@ -814,7 +831,7 @@ export class VitruvianApp {
       return;
     }
     const n = s.steps.length;
-    g.label(`Step ${s.index + 1} / ${n} · ${step.section} · ${s.profile === "quick" ? "Quick Fit" : "Precision Fit"}`, 64, 168, T.gold);
+    g.label(`Step ${s.index + 1} / ${n} · ${step.section} · ${PROFILE_INFO[s.profile].title}`, 64, 168, T.gold);
     for (let i = 0; i < n; i++) {
       g.ctx.fillStyle = i < s.index ? T.gold : i === s.index ? T.text : "rgba(255,246,230,0.15)";
       g.ctx.fillRect(64 + i * (880 / n), 186, 880 / n - 6, 6);
@@ -1030,7 +1047,7 @@ export class VitruvianApp {
     const by = (k: string) => ms.filter((m) => m.method === k).length;
     g.text(`${ms.length} measurements · ${by("direct")} measured · ${by("derived")} derived · ${by("manual")} manual · ${ms.filter((m) => m.status === "conflicted").length} conflicted`, 64, 254, { size: 28, color: T.text2 });
     let y = 324;
-    for (const id of PROFILE_PRIMARY.quick) {
+    for (const id of PROFILE_PRIMARY.simple) {
       const m = s.measurements[id];
       g.text(MEASUREMENT_BY_ID[id].label, 64, y, { size: 32, color: T.text });
       if (m) {

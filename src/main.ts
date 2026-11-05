@@ -23,6 +23,7 @@ import type { CanvasPanel } from "./ui/canvasPanel";
 import { deliverPassport, hostConfig, listenForRequests } from "./integration/faberland";
 import { BodyTwin } from "./scene/twin";
 import { AvatarSlot } from "./scene/avatar";
+import { ControllerHints } from "./scene/controllerHints";
 import type { Settings } from "./app/app";
 import type { Subject } from "./passport/passport";
 
@@ -42,7 +43,9 @@ if (params.get("emulate")) {
   // (the 600 ms stability window itself is unchanged). Real headsets keep the default.
   const { DEFAULT_STABILIZER } = await import("./measurement/stabilizer");
   DEFAULT_STABILIZER.minSamples = 3;
-  DEFAULT_STABILIZER.windowMs = 1500;
+  DEFAULT_STABILIZER.windowMs = 2000;
+  const { CAPTURE_CONFIG } = await import("./measurement/session");
+  CAPTURE_CONFIG.maxFrameMs = 500;
   (window as unknown as { __xrdevice: unknown }).__xrdevice = dev;
 }
 
@@ -164,6 +167,8 @@ const tips = [0, 1].map(() => {
   scene.add(g);
   return g;
 });
+// floating hint cards with the Figma controller artwork
+const hints = new ControllerHints(scene);
 // rays + cursors
 const rays = [0, 1].map(() => {
   const l = unitLine(GOLD_HEX, 0.002, 0.55);
@@ -321,6 +326,13 @@ renderer.setAnimationLoop((time, xrFrame?: XRFrame) => {
       const d = new THREE.Vector3(0, 0, -1).applyQuaternion(new THREE.Quaternion(a.orientation.x, a.orientation.y, a.orientation.z, a.orientation.w));
       tips[i].position.set(a.position.x, a.position.y, a.position.z).addScaledVector(d, off);
     }
+  });
+
+  // controller hint cards
+  (["left", "right"] as const).forEach((hand) => {
+    const gp = f[hand]?.grip;
+    // hide a hint while that controller is aiming at the panel, so it never covers what you point at
+    hints.update(dt, hand, session && gp?.tracked && !uiHover[hand] ? new THREE.Vector3(gp.position.x, gp.position.y, gp.position.z) : null, headV, app.hintSpec(hand));
   });
 
   // beam

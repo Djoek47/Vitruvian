@@ -1,0 +1,287 @@
+{
+  "Format": "ue-passport-1.0",
+  "SchemaVersion": "1.1",
+  "ProfileId": "11b45b6d-f158-453b-a8ed-c04f25ce6a00",
+  "DisplayName": "My Body Passport",
+  "UpdatedAt": "2026-11-05T07:03:59.223Z",
+  "bSimulated": true,
+  "Units": "cm",
+  "CoordinateSystem": "UE left-handed: X forward, Y right, Z up; origin = floor under subject",
+  "Measurements": [
+    {
+      "Id": "height",
+      "Label": "Height",
+      "ValueCm": 178,
+      "UncertaintyCm": 0.53,
+      "Confidence": 0.889,
+      "Method": "direct",
+      "Status": "unvalidated"
+    },
+    {
+      "Id": "shoulder_width",
+      "Label": "Shoulder width (biacromial)",
+      "ValueCm": 40,
+      "UncertaintyCm": 0.76,
+      "Confidence": 0.633,
+      "Method": "direct",
+      "Status": "unvalidated"
+    },
+    {
+      "Id": "chest_width",
+      "Label": "Chest breadth",
+      "ValueCm": 32,
+      "UncertaintyCm": 1.03,
+      "Confidence": 0.485,
+      "Method": "direct",
+      "Status": "unvalidated"
+    },
+    {
+      "Id": "chest_circumference",
+      "Label": "Chest circumference",
+      "ValueCm": 91.37,
+      "UncertaintyCm": 5.88,
+      "Confidence": 0.104,
+      "Method": "estimated",
+      "Status": "unvalidated"
+    },
+    {
+      "Id": "waist_width",
+      "Label": "Waist breadth",
+      "ValueCm": 29,
+      "UncertaintyCm": 1.03,
+      "Confidence": 0.485,
+      "Method": "direct",
+      "Status": "unvalidated"
+    },
+    {
+      "Id": "waist_circumference",
+      "Label": "Waist circumference",
+      "ValueCm": 82.31,
+      "UncertaintyCm": 5.37,
+      "Confidence": 0.122,
+      "Method": "estimated",
+      "Status": "unvalidated"
+    },
+    {
+      "Id": "hip_width",
+      "Label": "Hip breadth",
+      "ValueCm": 35,
+      "UncertaintyCm": 1.03,
+      "Confidence": 0.485,
+      "Method": "direct",
+      "Status": "unvalidated"
+    },
+    {
+      "Id": "hip_circumference",
+      "Label": "Hip circumference",
+      "ValueCm": 97.46,
+      "UncertaintyCm": 6.21,
+      "Confidence": 0.094,
+      "Method": "estimated",
+      "Status": "unvalidated"
+    },
+    {
+      "Id": "arm_length",
+      "Label": "Arm length (shoulder → wrist)",
+      "ValueCm": 58.02,
+      "UncertaintyCm": 1.76,
+      "Confidence": 0.421,
+      "Method": "derived",
+      "Status": "unvalidated"
+    },
+    {
+      "Id": "shoulder_height",
+      "Label": "Shoulder height",
+      "ValueCm": 146,
+      "UncertaintyCm": 0.61,
+      "Confidence": 0.859,
+      "Method": "direct",
+      "Status": "unvalidated"
+    },
+    {
+      "Id": "waist_height",
+      "Label": "Waist height",
+      "ValueCm": 108,
+      "UncertaintyCm": 0.72,
+      "Confidence": 0.812,
+      "Method": "direct",
+      "Status": "unvalidated"
+    },
+    {
+      "Id": "outseam",
+      "Label": "Outseam (waist → floor)",
+      "ValueCm": 108,
+      "UncertaintyCm": 0.72,
+      "Confidence": 0.812,
+      "Method": "derived",
+      "Status": "unvalidated"
+    },
+    {
+      "Id": "eye_height",
+      "Label": "Eye height (headset)",
+      "ValueCm": 168,
+      "UncertaintyCm": 0.8,
+      "Confidence": 0.779,
+      "Method": "direct",
+      "Status": "unvalidated"
+    },
+    {
+      "Id": "waist_to_hip",
+      "Label": "Waist to hip (vertical)",
+      "ValueCm": 16,
+      "UncertaintyCm": 0.95,
+      "Confidence": 0.526,
+      "Method": "direct",
+      "Status": "unvalidated"
+    }
+  ],
+  "Landmarks": [
+    {
+      "Id": "floor",
+      "Location": {
+        "X": 10,
+        "Y": 25,
+        "Z": 0
+      },
+      "Samples": 1,
+      "SpreadMm": 0
+    },
+    {
+      "Id": "head_device",
+      "Location": {
+        "X": 0,
+        "Y": 0,
+        "Z": 168
+      },
+      "Samples": 1,
+      "SpreadMm": 0
+    },
+    {
+      "Id": "top_of_head",
+      "Location": {
+        "X": 0,
+        "Y": 0,
+        "Z": 178
+      },
+      "Samples": 1,
+      "SpreadMm": 0
+    },
+    {
+      "Id": "acromion_r",
+      "Location": {
+        "X": 0,
+        "Y": 20,
+        "Z": 146
+      },
+      "Samples": 1,
+      "SpreadMm": 0
+    },
+    {
+      "Id": "acromion_l",
+      "Location": {
+        "X": 0,
+        "Y": -20,
+        "Z": 146
+      },
+      "Samples": 1,
+      "SpreadMm": 0
+    },
+    {
+      "Id": "wrist_r",
+      "Location": {
+        "X": 0,
+        "Y": 25.05,
+        "Z": 88.2
+      },
+      "Samples": 1,
+      "SpreadMm": 0
+    },
+    {
+      "Id": "chest_side_l",
+      "Location": {
+        "X": 0,
+        "Y": -16,
+        "Z": 128
+      },
+      "Samples": 1,
+      "SpreadMm": 0
+    },
+    {
+      "Id": "chest_side_r",
+      "Location": {
+        "X": 0,
+        "Y": 16,
+        "Z": 128
+      },
+      "Samples": 1,
+      "SpreadMm": 0
+    },
+    {
+      "Id": "waist_side_l",
+      "Location": {
+        "X": 0,
+        "Y": -14.5,
+        "Z": 108
+      },
+      "Samples": 1,
+      "SpreadMm": 0
+    },
+    {
+      "Id": "waist_side_r",
+      "Location": {
+        "X": 0,
+        "Y": 14.5,
+        "Z": 108
+      },
+      "Samples": 1,
+      "SpreadMm": 0
+    },
+    {
+      "Id": "hip_side_l",
+      "Location": {
+        "X": 0,
+        "Y": -17.5,
+        "Z": 92
+      },
+      "Samples": 1,
+      "SpreadMm": 0
+    },
+    {
+      "Id": "hip_side_r",
+      "Location": {
+        "X": 0,
+        "Y": 17.5,
+        "Z": 92
+      },
+      "Samples": 1,
+      "SpreadMm": 0
+    }
+  ],
+  "Subject": {
+    "WeightKg": 78,
+    "AgeYears": 34,
+    "Sex": "male",
+    "ShoeSystem": "EU",
+    "ShoeSize": 42,
+    "FootLengthCm": 26.5
+  },
+  "Composition": {
+    "Bmi": 24.618104566157502,
+    "BodyFatPct": 0,
+    "LeanMassKg": 0,
+    "FfmiNormalized": 0
+  },
+  "SkinTone": {
+    "bPresent": false,
+    "Hex": "",
+    "LinearColor": {
+      "R": 0,
+      "G": 0,
+      "B": 0,
+      "A": 1
+    },
+    "ItaDeg": 0,
+    "Monk": 0,
+    "bWhiteBalanced": false
+  }
+}

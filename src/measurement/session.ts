@@ -2,7 +2,7 @@ import { add, bodyFrameFromHead, distance, dot, forwardOf, forwardSeparation, la
 import { mToMm } from "../core/units";
 import type { ControllerState, TrackingFrame } from "../tracking/types";
 import { computeAll, type ManualEntry } from "./engine";
-import { stepsFor, type CaptureStep } from "./procedures";
+import { POINT_CAP, stepsFor, type CaptureStep } from "./procedures";
 import { Stabilizer, DEFAULT_STABILIZER, type StabilityReport } from "./stabilizer";
 import { solveTipOffset, tipPoint, tipSampleFrom, type TipSample } from "./tip";
 import type { Calibration, Landmark, Measurement, ProfileKind } from "./types";
@@ -17,7 +17,11 @@ export type CaptureRecord = {
 };
 
 /** Capture hold duration (Settings ▸ Capture hold). */
-export const CAPTURE_CONFIG = { holdMs: 900 };
+export const CAPTURE_CONFIG = {
+  holdMs: 900,
+  /** Max progress credited per frame (guards against stalls). Raised only for the low-fps emulator. */
+  maxFrameMs: 100,
+};
 export const HOLD_MS = 900;
 
 export function emptyCalibration(): Calibration {
@@ -108,7 +112,7 @@ export class CaptureSession {
     this.lastFrame = f;
     this.source = f.source;
     this.device = f.device;
-    const dt = this.lastT ? Math.min(100, f.t - this.lastT) : 0;
+    const dt = this.lastT ? Math.min(CAPTURE_CONFIG.maxFrameMs, f.t - this.lastT) : 0;
     this.lastT = f.t;
     if (!this.step || this.phase === "review" || this.phase === "done") return;
     this.stab.push(f.t, this.currentPoints(f));
@@ -193,7 +197,16 @@ export class CaptureSession {
   acceptAndRefine() {
     const s = this.step;
     if (!s || s.kind !== "landmarks") return this.accept();
+    if (this.totalSamples() + (this.pending?.landmarks.length ?? 0) >= POINT_CAP[this.profile]) {
+      this.message = `Point limit for ${this.profile} mode reached (${POINT_CAP[this.profile]}) — accepted and moving on`;
+      return this.accept();
+    }
     this.accept(true);
+  }
+
+  /** Landmark samples captured so far (points incl. repeats). */
+  totalSamples(): number {
+    return Object.values(this.landmarks).reduce((a, l) => a + (l.samples ?? 1), 0);
   }
 
   accept(refine = false) {

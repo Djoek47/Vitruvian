@@ -13,7 +13,7 @@ import type { BodyPassport } from "../passport/passport";
  *   host=faberland            enables host mode
  *   return=<url>              deep link / https callback to return to after save,
  *                             e.g. faberland://vitruvian/passport  (receives ?profileId=&updatedAt=)
- *   profile=<quick|precision> skip the menu and start a profile
+ *   profile=<simple|intermediate|ultra> skip the menu and start a mode
  *   origin=<https origin>     parent origin for postMessage when embedded in a webview/iframe
  *
  * Channels, in order:
@@ -24,7 +24,7 @@ import type { BodyPassport } from "../passport/passport";
  */
 export const CONTRACT_VERSION = 1;
 
-export type HostConfig = { enabled: boolean; returnUrl: string | null; startProfile: "quick" | "precision" | null; origin: string };
+export type HostConfig = { enabled: boolean; returnUrl: string | null; startProfile: "simple" | "intermediate" | "ultra" | null; origin: string };
 
 export function hostConfig(search = location.search): HostConfig {
   const p = new URLSearchParams(search);
@@ -32,7 +32,7 @@ export function hostConfig(search = location.search): HostConfig {
   return {
     enabled: p.get("host") === "faberland",
     returnUrl: p.get("return"),
-    startProfile: prof === "quick" || prof === "precision" ? prof : null,
+    startProfile: prof === "simple" || prof === "intermediate" || prof === "ultra" ? prof : prof === "quick" ? "simple" : prof === "precision" ? "intermediate" : null,
     origin: p.get("origin") ?? "*",
   };
 }

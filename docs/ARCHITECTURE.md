@@ -11,6 +11,9 @@ Each layer only depends on the layer below it. The VR app is one *client* of the
 | Body Passport | `passport/*`, `schemas/` | engine types | — (the canonical asset) |
 | Avatar / garment adapters | `bridge/marvelous.ts`, `bridge/metahuman.ts`, `body/mannequin.ts`, `fit/tshirt.ts` | Body Passport only | CLO, other avatar systems |
 | Host integration | `integration/faberland.ts` | Body Passport only | Faberland account sync service |
+| Body Intelligence | `intelligence/history.ts`, `wardrobe.ts`, `interpolate.ts` | Body Passport snapshots only | any client (phone, web, Unreal) |
+| Evolution pages | `evolution/dashboard.ts`, `viewer.ts` | intelligence + store | Unreal / mobile UI |
+| Unreal | `unreal/VitruvianPassport` (C++ plugin) | `*-unreal.json` | — |
 | Presentation | `app`, `scene`, `ui`, `landing.ts`, `main.ts` | everything above | Unreal UMG widgets |
 
 ## Why WebXR for cycle 1
@@ -46,6 +49,15 @@ Two points give a straight line, never a girth. We measure **breadth** and **dep
 
 ### Uncertainty
 `u = √(placement² + tipResidual² + trackingFloor² + jitter²)` per point, combined in quadrature, plus a sequential-motion term for two-step captures. Confidence = `tol²/(tol²+u²)` with a fit tolerance per measurement.
+
+## Guided order and re-projection
+Ground → Head → Instrument → body. The ground touch happens before the tip is calibrated, so every tip capture stores its raw aim pose (origin + direction). When tip calibration solves `d`, every earlier tip landmark is recomputed exactly as `origin + d·dir`, the floor plane moves with it, and all body-frame coordinates are refreshed. Unit-tested: the floor lands on the true floor to 0.1 mm.
+
+## More points = more established
+"+ Sample" averages independent placements of the same landmark. The placement term in the uncertainty becomes `max(observed repeat SD, ½·prior) / √n`. The step map and "Body model" meter show points captured and how established the model is (mean confidence of the profile's primary measurements).
+
+## Random vs systematic uncertainty
+Derived girths carry a systematic model term (shape exponent) and a random term (propagated breadth/depth). Absolute fit checks use the total. Change detection between snapshots uses only the random part, because the shared model error cancels in a difference (`Measurement.randomUncertaintyMm`).
 
 ## Persistence
 IndexedDB, AES-GCM-256 with a non-extractable device key. Every save appends a version under the same `profileId` (history). An in-progress session is checkpointed after every accepted capture, so it survives crash or restart. "Delete all my body data" wipes the database and the key.
